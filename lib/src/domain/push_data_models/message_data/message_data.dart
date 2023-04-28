@@ -30,11 +30,11 @@ class MessageData {
 
   factory MessageData.fromDTO(MessageDataDTO dto) {
     return MessageData(
-      title: MessageDataTitleValue()..validate(dto.title),
-      body: MessageDataBodyValue()..validate(dto.body),
-      imageURL: MessageDataImageURLValue()..validate(dto.imageURL),
+      title: MessageDataTitleValue()..parse(dto.title),
+      body: MessageDataBodyValue()..parse(dto.body),
+      imageURL: MessageDataImageURLValue()..tryParse(dto.imageURL),
       allowDismiss: MessageDataAllowDismissValue()
-        ..parse(dto.allowDismiss.toString()),
+        ..parse(dto.allowDismiss),
       layoutType: MessageDataLayoutTypeValue()..parse(dto.layoutType),
       steps: dto.steps.map((e) => StepData.fromDTO(e)).toList(),
       buttons: dto.buttons.map((e) => ButtonData.fromDTO(e)).toList(),

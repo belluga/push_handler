@@ -1,4 +1,4 @@
-enum ButtonActionType {
+enum ButtonRouteType {
   internalRoute,
   internalRouteWithItem,
   externalURL,

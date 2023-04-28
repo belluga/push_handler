@@ -29,19 +29,19 @@ class ButtonData {
 
   factory ButtonData.fromDTO(ButtonDataDTO dto) {
     final _type = ButtonDataRouteTypeValue()..parse(dto.routeType);
-    final _routeExternal = ButtonDataRouteExternal()..parse(dto.routeExternal);
-    final _routeInternal = ButtonDataRouteValue()..parse(dto.routeInternal);
+    final _routeExternal = ButtonDataRouteExternal()..tryParse(dto.routeExternal);
+    final _routeInternal = ButtonDataRouteValue()..tryParse(dto.routeInternal);
 
     if ([
-          ButtonActionType.internalRoute,
-          ButtonActionType.internalRouteWithItem,
+          ButtonRouteType.internalRoute,
+          ButtonRouteType.internalRouteWithItem,
         ].contains(_type.value) &&
         _routeInternal.value.isEmpty) {
       throw Exception(
           "If the type is 'internalRoute' or 'internalRouteWithItem' then '_routeInternal' should not be empty");
     }
 
-    if (_type.value == ButtonActionType.externalURL &&
+    if (_type.value == ButtonRouteType.externalURL &&
         _routeExternal.value == null) {
       throw Exception(
           "If the type is 'externalURL' then '_routeExternal' should not be empty");
@@ -49,11 +49,11 @@ class ButtonData {
 
     return ButtonData(
       label: ButtonDataLabelValue()..parse(dto.label),
-      routeInternal: ButtonDataRouteValue()..parse(dto.routeInternal),
-      routeExternal: ButtonDataRouteExternal()..parse(dto.routeExternal),
+      routeInternal: ButtonDataRouteValue()..tryParse(dto.routeInternal),
+      routeExternal: ButtonDataRouteExternal()..tryParse(dto.routeExternal),
       routeType: ButtonDataRouteTypeValue()..parse(dto.routeType),
-      color: ButtonDataColorValue()..parse(dto.color),
-      itemKey: ButtonDataItemKeyValue()..parse(dto.itemKey),
+      color: ButtonDataColorValue()..tryParse(dto.color),
+      itemKey: ButtonDataItemKeyValue()..tryParse(dto.itemKey),
     );
   }
 }

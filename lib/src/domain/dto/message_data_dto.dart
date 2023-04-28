@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:push_handler/src/domain/dto/button_data_dto.dart';
 import 'package:push_handler/src/domain/dto/step_data_dto.dart';
 
 class MessageDataDTO {
   final String title;
   final String body;
-  final String imageURL;
-  final bool allowDismiss;
+  final String? imageURL;
+  final String allowDismiss;
   final String layoutType;
   final List<StepDataDTO> steps;
   final List<ButtonDataDTO> buttons;
@@ -21,21 +23,17 @@ class MessageDataDTO {
   });
 
   factory MessageDataDTO.fromMap(Map<String, dynamic> map) {
-    print("MessageDataDTO.fromMap");
-    print("map");
-    print(map);
-
     return MessageDataDTO(
-      title:  map["title"],
+      title: map["title"],
       body: map["body"],
       imageURL: map["imageURL"],
       allowDismiss: map["allowDismiss"],
       layoutType: map['layoutType'],
-      steps: (map['steps'] as List<Map<String, dynamic>>)
-          .map((e) => StepDataDTO.fromMap(e))
+      steps: (jsonDecode(map['steps']) as List)
+          .map((e) => StepDataDTO.fromMap(e as Map<String,dynamic>))
           .toList(),
-      buttons: (map['buttons'] as List<Map<String, dynamic>>)
-          .map((e) => ButtonDataDTO.fromMap(e))
+      buttons: (jsonDecode(map['buttons']) as List)
+          .map((e) => ButtonDataDTO.fromMap(e as Map<String,dynamic>))
           .toList(),
     );
   }

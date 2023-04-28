@@ -1,7 +1,7 @@
 library push_handler;
 
 export 'src/push_handler.dart';
-export 'src/domain/enums/button_action_type.dart';
+export 'src/domain/enums/button_route_type.dart';
 export 'src/domain/enums/message_layout_type.dart';
 export 'src/domain/enums/step_content_type.dart';
 export 'src/domain/push_data_models/buttons_data/buttons_data.dart';

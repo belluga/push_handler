@@ -9,8 +9,11 @@ class ButtonDataColorValue extends ValueObject<Color?> {
   });
 
   @override
-  Color doParse(String? parseValue) {
-    final String _cleanedValue = parseValue!.replaceAll("#", "");
+  Color? doParse(String? parseValue) {
+    if (parseValue == null || parseValue.isEmpty) {
+      return null;
+    }
+    final String _cleanedValue = parseValue.replaceAll("#", "");
     return Color(
         int.parse(_cleanedValue.substring(0, 6), radix: 16) + 0xFF000000);
   }

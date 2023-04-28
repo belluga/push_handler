@@ -21,8 +21,8 @@ class StepData {
 
   factory StepData.fromDTO(StepDataDTO dto) {
 
-    final _htmlContent = StepDataHtmlValue()..parse(dto.content);
-    final _embedUrl = StepDataURLValue()..parse(dto.embedURL);
+    final _htmlContent = StepDataHtmlValue()..tryParse(dto.content);
+    final _embedUrl = StepDataURLValue()..tryParse(dto.embedURL);
     final _type = StepDataContentTypeValue()..parse(dto.type);
 
     if(_type.value == StepContentType.html && _htmlContent.value.isEmpty){
