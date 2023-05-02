@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
-import 'package:push_handler/src/presentation/push_popup/widgets/push_action_button.dart';
+import 'package:push_handler/src/presentation/widgets/push_action_button.dart';
 
 class PushActionButtonsArea extends StatelessWidget {
   final List<ButtonData> buttonDataList;
