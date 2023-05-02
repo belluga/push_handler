@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
-import 'package:push_handler/src/presentation/push_popup/widgets/push_step_content.dart';
+import 'package:push_handler/src/presentation/push_popup/widgets/push_step_dialog.dart';
 
 class PushStepsTab extends StatelessWidget {
   final PushWidgetController controller;
@@ -14,7 +14,7 @@ class PushStepsTab extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       children: List.generate(
         controller.messageData.steps.length,
-        (index) => PushStepContent(
+        (index) => PushStepDialog(
           controller: controller,
         ),
       ),

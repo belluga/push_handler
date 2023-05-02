@@ -59,7 +59,7 @@ class ButtonRouteNavigation {
   void navigateToInternalWithItem() {
     final String _internalRoute = buttonData.routeInternal.value;
     final String _itemIDString = buttonData.itemKey.value;
-    late Object? _argumentsObject;
+    Object? _argumentsObject;
     final BuildContext? _currentContext =
         controller.navigatorKey.currentContext;
 

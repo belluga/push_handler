@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/push_popup/push_popup.dart';
+import 'package:push_handler/src/presentation/push_screen_full/push_screen_full.dart';
 
 class PushHandlerRepository {
   final Future<void> Function(RemoteMessage) onBackgroundMessage;
@@ -24,7 +25,7 @@ class PushHandlerRepository {
     switch (newMessage.layoutType.value) {
       case MessageLayoutType.popup:
         return processPoppup(newMessage);
-      case MessageLayoutType.dialogFull:
+      case MessageLayoutType.fullScreen:
         return processDialogFull(newMessage);
       case MessageLayoutType.bottomModal:
         return processBottomModal(newMessage);
@@ -45,7 +46,16 @@ class PushHandlerRepository {
         },
       );
 
-  void processDialogFull(MessageData messageData) => processPoppup(messageData);
+  void processDialogFull(MessageData messageData) {
+    showGeneralDialog(
+      context: globalNavigatorKey.currentContext!,
+      pageBuilder: (context, _, __) => PushScreenFull(
+        navigatorKey: globalNavigatorKey,
+        messageData: messageData,
+      ),
+    );
+  }
+
   void processBottomModal(MessageData messageData) =>
       processPoppup(messageData);
   void processActionButton(MessageData messageData) =>

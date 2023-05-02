@@ -1,5 +1,5 @@
 enum MessageLayoutType {
-  dialogFull,
+  fullScreen,
   bottomModal,
   popup,
   actionButton,
