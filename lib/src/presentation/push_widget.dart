@@ -14,8 +14,6 @@ abstract class PushWidget extends StatefulWidget {
 abstract class PushWidgetState extends State<PushWidget>
     with TickerProviderStateMixin {
   late PushWidgetController controller;
-  bool isLastTab = false;
-  int currentIndex = 0;
 
   @override
   void initState() {
@@ -23,7 +21,7 @@ abstract class PushWidgetState extends State<PushWidget>
     controller = PushWidgetController(messageData: widget.messageData);
     controller.tabController = TabController(
       length: widget.messageData.steps.length,
-      initialIndex: currentIndex,
+      initialIndex: controller.currentIndexStreamValue.value,
       vsync: this,
     );
 
@@ -33,24 +31,16 @@ abstract class PushWidgetState extends State<PushWidget>
   @override
   Widget build(BuildContext context);
 
-  void toNext() {
-    controller.tabController.animateTo(controller.tabController.index + 1);
-  }
-
-  void toPrevious() {
-    controller.tabController.animateTo(controller.tabController.index - 1);
-  }
-
   void _listenTabController() {
     final bool _currentIsLastTabStatus = controller.tabController.index + 1 >=
         controller.messageData.steps.length;
 
     final int _currentIndex = controller.tabController.index;
 
-    if (_currentIndex != currentIndex) {
+    if (_currentIndex != controller.currentIndexStreamValue.value) {
       setState(() {
-        isLastTab = _currentIsLastTabStatus;
-        currentIndex = controller.tabController.index;
+        controller.isLastTabStreamValue.addValue(_currentIsLastTabStatus);
+        controller.currentIndexStreamValue.addValue(controller.tabController.index);
       });
     }
   }
