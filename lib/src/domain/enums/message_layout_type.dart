@@ -3,4 +3,5 @@ enum MessageLayoutType {
   bottomModal,
   popup,
   actionButton,
+  snackBar,
 }

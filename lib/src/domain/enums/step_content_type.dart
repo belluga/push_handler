@@ -1,4 +1,0 @@
-enum StepContentType {
-  embedURL,
-  html,
-}
