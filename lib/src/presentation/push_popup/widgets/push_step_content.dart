@@ -54,12 +54,19 @@ class PushStepContent extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (controller.currentIndexStreamValue.value != 0)
-                      ElevatedButton(
-                          onPressed: controller.toPrevious,
-                          child: const Text("Voltar")),
-                    ElevatedButton(
+                      IconButton(
+                        onPressed: controller.toPrevious,
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    IconButton(
                       onPressed: controller.toNext,
-                      child: const Text("Próximo"),
+                      icon: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     ),
                   ],
                 ),
