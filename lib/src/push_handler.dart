@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/message_data.dart';
-import 'package:push_handler/src/services/fcm_service.dart';
+import 'package:push_handler/src/infrastructure/services/fcm_service.dart';
 import 'package:stream_value/core/stream_value.dart';
 
 class PushHandler {

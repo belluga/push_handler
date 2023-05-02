@@ -3,7 +3,7 @@ import 'package:push_handler/src/presentation/push_popup/widgets/push_steps_tab.
 import 'package:push_handler/src/presentation/push_widget.dart';
 
 class PushPopup extends PushWidget {
-  const PushPopup({super.key, required super.messageData});
+  const PushPopup({super.key, required super.messageData, required super.navigatorKey});
 
   @override
   State<PushWidget> createState() => _PushPopupState();

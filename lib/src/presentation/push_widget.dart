@@ -4,8 +4,10 @@ import 'package:push_handler/src/presentation/controller/push_widget_controller.
 
 abstract class PushWidget extends StatefulWidget {
   final MessageData messageData;
+  final GlobalKey<NavigatorState> navigatorKey;
 
-  const PushWidget({super.key, required this.messageData});
+  const PushWidget(
+      {super.key, required this.messageData, required this.navigatorKey});
 
   @override
   State<PushWidget> createState();
@@ -18,7 +20,10 @@ abstract class PushWidgetState extends State<PushWidget>
   @override
   void initState() {
     super.initState();
-    controller = PushWidgetController(messageData: widget.messageData);
+    controller = PushWidgetController(
+      messageData: widget.messageData,
+      navigatorKey: widget.navigatorKey,
+    );
     controller.tabController = TabController(
       length: widget.messageData.steps.length,
       initialIndex: controller.currentIndexStreamValue.value,
@@ -40,7 +45,8 @@ abstract class PushWidgetState extends State<PushWidget>
     if (_currentIndex != controller.currentIndexStreamValue.value) {
       setState(() {
         controller.isLastTabStreamValue.addValue(_currentIsLastTabStatus);
-        controller.currentIndexStreamValue.addValue(controller.tabController.index);
+        controller.currentIndexStreamValue
+            .addValue(controller.tabController.index);
       });
     }
   }

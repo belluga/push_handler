@@ -72,6 +72,7 @@ class PushStepContent extends StatelessWidget {
                 ),
               if (controller.isLastTabStreamValue.value == true)
                 PushActionButtonsArea(
+                  controller: controller,
                   buttonDataList: controller.messageData.buttons,
                 ),
             ],

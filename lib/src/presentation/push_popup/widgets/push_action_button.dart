@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/src/infrastructure/services/route_navigation.dart';
+import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 
 class PushActionButton extends StatelessWidget {
   final ButtonData buttonData;
+  final PushWidgetController controller;
 
-  const PushActionButton({super.key, required this.buttonData});
+  const PushActionButton({super.key, required this.buttonData, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: _navigate,
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),
@@ -28,5 +31,10 @@ class PushActionButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _navigate() {
+    final _buttonNavigation = ButtonRouteNavigation(buttonData: buttonData, controller: controller);
+    _buttonNavigation.navigate();
   }
 }

@@ -1,14 +1,13 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
-import 'package:push_handler/src/presentation/push_popup/push_popup.dart';
 
-class PushHandlerRepository {
+abstract class PushHandlerRepositoryContract {
   final Future<void> Function(RemoteMessage) onBackgroundMessage;
-  final globalNavigatorKey = GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState> get globalNavigatorKey;
   late PushHandler pushHandler;
 
-  PushHandlerRepository(this.onBackgroundMessage);
+  PushHandlerRepositoryContract(this.onBackgroundMessage);
 
   Future<void> init() async {
     pushHandler = PushHandler(onbackgroundStartMessage: onBackgroundMessage);
@@ -35,17 +34,9 @@ class PushHandlerRepository {
     }
   }
 
-  void processPoppup(MessageData messageData) => showDialog(
-        context: globalNavigatorKey.currentContext!,
-        builder: (context) {
-          return PushPopup(messageData: messageData);
-        },
-      );
-
-  void processDialogFull(MessageData messageData) => processPoppup(messageData);
-  void processBottomModal(MessageData messageData) =>
-      processPoppup(messageData);
-  void processActionButton(MessageData messageData) =>
-      processPoppup(messageData);
-  void processSnackBar(MessageData messageData) => processPoppup(messageData);
+  void processPoppup(MessageData messageData);
+  void processDialogFull(MessageData messageData);
+  void processBottomModal(MessageData messageData);
+  void processActionButton(MessageData messageData);
+  void processSnackBar(MessageData messageData);
 }
