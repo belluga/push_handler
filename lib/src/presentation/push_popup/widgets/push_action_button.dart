@@ -9,14 +9,23 @@ class PushActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
       child: ElevatedButton(
-        onPressed: (){},
+        onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: buttonData.color.value ?? Theme.of(context).colorScheme.secondary,
-    
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 26),
+          backgroundColor:
+              buttonData.color.value ?? Theme.of(context).colorScheme.onPrimary,
         ),
-        child: Text(buttonData.label.value),
+        child: Text(
+          buttonData.label.value,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
       ),
     );
   }
