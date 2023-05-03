@@ -28,6 +28,8 @@ abstract class PushHandlerRepositoryContract {
         return;
       }
 
+      Navigator.of(globalNavigatorKey.currentContext!).pop();
+
       switch (_onClickType) {
         case MessageLayoutType.fullScreen:
           return processDialogFull(messageData);
@@ -57,16 +59,17 @@ abstract class PushHandlerRepositoryContract {
     }
   }
 
-  void processPoppup(MessageData messageData) => showDialog(
-        context: globalNavigatorKey.currentContext!,
-        barrierDismissible: messageData.allowDismiss.value,
-        builder: (context) {
-          return PushPopup(
-            messageData: messageData,
-            navigatorKey: globalNavigatorKey,
-          );
-        },
-      );
+  void processPoppup(MessageData messageData) {
+    showDialog(
+      context: globalNavigatorKey.currentContext!,
+      builder: (context) {
+        return PushPopup(
+          messageData: messageData,
+          navigatorKey: globalNavigatorKey,
+        );
+      },
+    );
+  }
 
   void processDialogFull(MessageData messageData) {
     showGeneralDialog(
@@ -81,6 +84,7 @@ abstract class PushHandlerRepositoryContract {
   void processBottomModal(MessageData messageData) {
     showModalBottomSheet(
       context: globalNavigatorKey.currentContext!,
+      isDismissible: messageData.allowDismiss.value,
       backgroundColor: Colors.transparent,
       builder: (context) => InkWell(
         onTap: () => _processOnClickType(messageData),
