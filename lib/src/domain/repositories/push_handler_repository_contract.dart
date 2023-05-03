@@ -1,10 +1,14 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/src/presentation/modal_bottom_sheet/modal_bottom_sheet_content.dart';
+import 'package:push_handler/src/presentation/push_popup/push_popup.dart';
+import 'package:push_handler/src/presentation/push_screen_full/push_screen_full.dart';
+import 'package:push_handler/src/presentation/snackbar/push_snack_bar_content.dart';
 
 abstract class PushHandlerRepositoryContract {
   final Future<void> Function(RemoteMessage) onBackgroundMessage;
-  GlobalKey<NavigatorState> get globalNavigatorKey;
+  final globalNavigatorKey = GlobalKey<NavigatorState>();
   late PushHandler pushHandler;
 
   PushHandlerRepositoryContract(this.onBackgroundMessage);
@@ -13,6 +17,25 @@ abstract class PushHandlerRepositoryContract {
     pushHandler = PushHandler(onbackgroundStartMessage: onBackgroundMessage);
     await pushHandler.init();
     pushHandler.messageStreamValue.stream.listen(_processMessage);
+  }
+
+  void _processOnClickType(MessageData messageData) {
+    {
+      final MessageLayoutType? _onClickType =
+          messageData.onClicklayoutType?.value;
+
+      if (_onClickType == null) {
+        return;
+      }
+
+      switch (_onClickType) {
+        case MessageLayoutType.fullScreen:
+          return processDialogFull(messageData);
+        case MessageLayoutType.popup:
+        default:
+          return processPoppup(messageData);
+      }
+    }
   }
 
   void _processMessage(MessageData? newMessage) {
@@ -34,9 +57,63 @@ abstract class PushHandlerRepositoryContract {
     }
   }
 
-  void processPoppup(MessageData messageData);
-  void processDialogFull(MessageData messageData);
-  void processBottomModal(MessageData messageData);
-  void processActionButton(MessageData messageData);
-  void processSnackBar(MessageData messageData);
+  void processPoppup(MessageData messageData) => showDialog(
+        context: globalNavigatorKey.currentContext!,
+        barrierDismissible: messageData.allowDismiss.value,
+        builder: (context) {
+          return PushPopup(
+            messageData: messageData,
+            navigatorKey: globalNavigatorKey,
+          );
+        },
+      );
+
+  void processDialogFull(MessageData messageData) {
+    showGeneralDialog(
+      context: globalNavigatorKey.currentContext!,
+      pageBuilder: (context, _, __) => PushScreenFull(
+        navigatorKey: globalNavigatorKey,
+        messageData: messageData,
+      ),
+    );
+  }
+
+  void processBottomModal(MessageData messageData) {
+    showModalBottomSheet(
+      context: globalNavigatorKey.currentContext!,
+      backgroundColor: Colors.transparent,
+      builder: (context) => InkWell(
+        onTap: () => _processOnClickType(messageData),
+        child: PushModalBottomSheetContent(
+          messageData: messageData,
+          navigatorKey: globalNavigatorKey,
+        ),
+      ),
+    );
+  }
+
+  void processSnackBar(MessageData messageData) {
+    try {
+      ScaffoldMessenger.of(globalNavigatorKey.currentContext!).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 10),
+          dismissDirection: DismissDirection.horizontal,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          content: InkWell(
+            onTap: () => _processOnClickType(messageData),
+            child: PushSnackBarContent(
+              messageData: messageData,
+              navigatorKey: globalNavigatorKey,
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      _processOnClickType(messageData);
+    }
+  }
+
+  void processActionButton(MessageData messageData) =>
+      processSnackBar(messageData);
 }
