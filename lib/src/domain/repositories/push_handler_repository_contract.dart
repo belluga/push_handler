@@ -23,7 +23,7 @@ abstract class PushHandlerRepositoryContract {
     switch (newMessage.layoutType.value) {
       case MessageLayoutType.popup:
         return processPoppup(newMessage);
-      case MessageLayoutType.dialogFull:
+      case MessageLayoutType.fullScreen:
         return processDialogFull(newMessage);
       case MessageLayoutType.bottomModal:
         return processBottomModal(newMessage);

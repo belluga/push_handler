@@ -24,6 +24,7 @@ class _PushPopupState extends PushWidgetState {
               PushTopBar(controller: controller),
               Expanded(
                 child: PushStepContent(
+                  padding: const EdgeInsets.all(64),
                   stepData: controller.messageData
                       .steps[controller.currentIndexStreamValue.value],
                 ),

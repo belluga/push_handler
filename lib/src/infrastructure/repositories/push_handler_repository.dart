@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/src/presentation/modal_bottom_sheet/modal_bottom_sheet_content.dart';
 import 'package:push_handler/src/presentation/push_popup/push_popup.dart';
 import 'package:push_handler/src/presentation/push_screen_full/push_screen_full.dart';
 import 'package:push_handler/src/presentation/snackbar/push_snack_bar_content.dart';
@@ -16,6 +17,25 @@ class PushHandlerRepository {
     pushHandler = PushHandler(onbackgroundStartMessage: onBackgroundMessage);
     await pushHandler.init();
     pushHandler.messageStreamValue.stream.listen(_processMessage);
+  }
+
+  void _processOnClickType(MessageData messageData) {
+    {
+      final MessageLayoutType? _onClickType =
+          messageData.onClicklayoutType?.value;
+
+      if (_onClickType == null) {
+        return;
+      }
+
+      switch (_onClickType) {
+        case MessageLayoutType.fullScreen:
+          return processDialogFull(messageData);
+        case MessageLayoutType.popup:
+        default:
+          return processPoppup(messageData);
+      }
+    }
   }
 
   void _processMessage(MessageData? newMessage) {
@@ -57,30 +77,42 @@ class PushHandlerRepository {
     );
   }
 
-  void processBottomModal(MessageData messageData) =>
-      processPoppup(messageData);
-  void processActionButton(MessageData messageData) =>
-      processPoppup(messageData);
+  void processBottomModal(MessageData messageData) {
+    showModalBottomSheet(
+      context: globalNavigatorKey.currentContext!,
+      backgroundColor: Colors.transparent,
+      builder: (context) => InkWell(
+        onTap: () => _processOnClickType(messageData),
+        child: PushModalBottomSheetContent(
+          messageData: messageData,
+          navigatorKey: globalNavigatorKey,
+        ),
+      ),
+    );
+  }
 
   void processSnackBar(MessageData messageData) {
     try {
       ScaffoldMessenger.of(globalNavigatorKey.currentContext!).showSnackBar(
         SnackBar(
-          backgroundColor:
-              Theme.of(globalNavigatorKey.currentContext!).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          elevation: 0,
           duration: const Duration(seconds: 10),
           dismissDirection: DismissDirection.horizontal,
+          behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          content: PushSnackBarContent(
-            messageData: messageData,
-            navigatorKey: globalNavigatorKey,
+          content: InkWell(
+            onTap: () => _processOnClickType(messageData),
+            child: PushSnackBarContent(
+              messageData: messageData,
+              navigatorKey: globalNavigatorKey,
+            ),
           ),
         ),
       );
     } catch (e) {
-      processPoppup(messageData);
+      _processOnClickType(messageData);
     }
   }
+
+  void processActionButton(MessageData messageData) =>
+      processSnackBar(messageData);
 }

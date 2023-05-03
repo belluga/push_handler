@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:push_handler/src/domain/push_data_models/image_data/image_data.dart';
 import 'package:push_handler/src/presentation/push_widget.dart';
-import 'package:push_handler/src/presentation/widgets/push_bottom_buttons.dart';
-import 'package:push_handler/src/presentation/widgets/push_step_content.dart';
-import 'package:push_handler/src/presentation/widgets/push_top_bar.dart';
 
 class PushSnackBarContent extends PushWidget {
   const PushSnackBarContent(
@@ -15,9 +13,59 @@ class PushSnackBarContent extends PushWidget {
 class _PushPopupState extends PushWidgetState {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: Theme.of(context).colorScheme.primary,
-      child: Text(controller.messageData.title.value),
+    final ImageData? _imageData = controller.messageData.image;
+
+    final TextStyle? _labelMedium =
+        Theme.of(controller.navigatorKey.currentContext!).textTheme.titleMedium;
+    final TextStyle? _bodySmall =
+        Theme.of(controller.navigatorKey.currentContext!).textTheme.bodySmall;
+    final Color _onPrimary =
+        Theme.of(controller.navigatorKey.currentContext!).colorScheme.onPrimary;
+
+    return Row(
+      children: [
+        if (_imageData != null)
+          Container(
+            width: 50,
+            height: 50,
+            margin: const EdgeInsets.all(8),
+            child: Image.network(
+              _imageData.pathValue.value.toString(),
+            ),
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.messageData.title.value,
+                  style: _labelMedium?.copyWith(
+                    color: _onPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  controller.messageData.body.value,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: _bodySmall?.copyWith(
+                    color: _onPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () {},
+          icon: Icon(
+            Icons.open_in_full,
+            color: _onPrimary,
+          ),
+        )
+      ],
     );
   }
 }
