@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/main.dart';
 import 'package:stream_value/core/stream_value.dart';
 
 class PushWidgetController {
