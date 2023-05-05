@@ -19,12 +19,10 @@ dependencies:
       url: https://github.com/belluga/enum_functions.git
       ref: v0.0.1
   stream_value:
-    path: ../stream_value
-    # git:
-    #   url: https://github.com/belluga/value_objects.git
-    #   ref: v0.0.2  
+    git:
+      url: https://github.com/belluga/stream_value.git
+      ref: v0.0.1  
   value_objects:
-    # path: ../packages/value_objects
     git:
       url: https://github.com/belluga/value_objects.git
       ref: v0.0.2
