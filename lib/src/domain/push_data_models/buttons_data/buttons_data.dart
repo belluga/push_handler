@@ -1,4 +1,4 @@
-import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/main.dart';
 import 'package:push_handler/src/domain/dto/button_data_dto.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_color_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_itemkey_value.dart';

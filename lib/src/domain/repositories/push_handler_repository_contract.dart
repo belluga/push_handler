@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:push_handler/push_handler.dart';
+import 'package:push_handler/main.dart';
 import 'package:push_handler/src/presentation/modal_bottom_sheet/modal_bottom_sheet_content.dart';
 import 'package:push_handler/src/presentation/push_popup/push_popup.dart';
 import 'package:push_handler/src/presentation/push_screen_full/push_screen_full.dart';
