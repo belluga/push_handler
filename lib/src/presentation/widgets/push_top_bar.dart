@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 import 'package:push_handler/src/presentation/widgets/push_dismiss_button.dart';
-import 'package:stream_value/core/stream_value_builder.dart';
 
 class PushTopBar extends StatelessWidget {
   final PushWidgetController controller;
