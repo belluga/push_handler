@@ -29,7 +29,7 @@ class PushHandler {
   static Future<void> requestPermission() async =>
       await FCMService.requestPermission();
 
-  final messageStreamValue = StreamValue<MessageData?>(defaultValue: null);
+  final messageStreamValue = StreamValue<MessageData?>();
 
   void _onMessage(RemoteMessage messageReceived) {
     final pushDataMessage = MessageData.fromMap(messageReceived.data);
