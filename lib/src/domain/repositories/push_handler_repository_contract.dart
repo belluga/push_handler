@@ -8,7 +8,7 @@ import 'package:push_handler/src/presentation/snackbar/push_snack_bar_content.da
 
 abstract class PushHandlerRepositoryContract {
   final Future<void> Function(RemoteMessage) onBackgroundMessage;
-  final globalNavigatorKey = GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState> get globalNavigatorKey;
   late PushHandler pushHandler;
 
   PushHandlerRepositoryContract(this.onBackgroundMessage);
@@ -30,13 +30,7 @@ abstract class PushHandlerRepositoryContract {
 
       Navigator.of(globalNavigatorKey.currentContext!).pop();
 
-      switch (_onClickType) {
-        case MessageLayoutType.fullScreen:
-          return processDialogFull(messageData);
-        case MessageLayoutType.popup:
-        default:
-          return processPoppup(messageData);
-      }
+      _processMessage(messageData);
     }
   }
 
@@ -91,6 +85,7 @@ abstract class PushHandlerRepositoryContract {
         child: PushModalBottomSheetContent(
           messageData: messageData,
           navigatorKey: globalNavigatorKey,
+          onTapExpand: () => processDialogFull(messageData),
         ),
       ),
     );
@@ -109,6 +104,7 @@ abstract class PushHandlerRepositoryContract {
             child: PushSnackBarContent(
               messageData: messageData,
               navigatorKey: globalNavigatorKey,
+              onTapExpand: () => processDialogFull(messageData),
             ),
           ),
         ),

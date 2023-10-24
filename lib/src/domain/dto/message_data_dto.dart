@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:push_handler/src/domain/dto/button_data_dto.dart';
+import 'package:push_handler/src/domain/dto/chat_data_dto.dart';
 import 'package:push_handler/src/domain/dto/image_data_dto.dart';
 import 'package:push_handler/src/domain/dto/step_data_dto.dart';
 
@@ -11,6 +10,7 @@ class MessageDataDTO {
   final String allowDismiss;
   final String layoutType;
   final String? onClickLayoutType;
+  final ChatDataDTO? chat;
   final List<StepDataDTO> steps;
   final List<ButtonDataDTO> buttons;
 
@@ -23,13 +23,14 @@ class MessageDataDTO {
     required this.steps,
     required this.buttons,
     this.onClickLayoutType,
+    this.chat,
   });
 
   factory MessageDataDTO.fromMap(Map<String, dynamic> map) {
     Map<String, dynamic>? _imageMap;
 
     try {
-      _imageMap = jsonDecode(map["image"]);
+      _imageMap = map["image"];
     } catch (e) {
       _imageMap = {};
     }
@@ -41,12 +42,13 @@ class MessageDataDTO {
       allowDismiss: map["allowDismiss"],
       layoutType: map['layoutType'],
       onClickLayoutType: map['onClickLayoutType'],
-      steps: (jsonDecode(map['steps']) as List)
+      steps: (map['steps'] as List)
           .map((e) => StepDataDTO.fromMap(e as Map<String, dynamic>))
           .toList(),
-      buttons: (jsonDecode(map['buttons']) as List)
+      buttons: (map['buttons'] as List)
           .map((e) => ButtonDataDTO.fromMap(e as Map<String, dynamic>))
           .toList(),
+      chat: ChatDataDTO.tryFromMap(map["chat"]),
     );
   }
 }

@@ -3,8 +3,12 @@ import 'package:push_handler/src/domain/push_data_models/image_data/image_data.d
 import 'package:push_handler/src/presentation/push_widget.dart';
 
 class PushModalBottomSheetContent extends PushWidget {
-  const PushModalBottomSheetContent(
-      {super.key, required super.messageData, required super.navigatorKey});
+  const PushModalBottomSheetContent({
+    super.key,
+    required super.messageData,
+    required super.navigatorKey,
+    required super.onTapExpand,
+  });
 
   @override
   State<PushWidget> createState() => _PushPopupState();
@@ -52,7 +56,7 @@ class _PushPopupState extends PushWidgetState {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: widget.onTapExpand,
                 icon: Icon(
                   Icons.open_in_full,
                   color: _onPrimary,
