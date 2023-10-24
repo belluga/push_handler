@@ -5,9 +5,10 @@ import 'package:push_handler/src/presentation/controller/push_widget_controller.
 abstract class PushWidget extends StatefulWidget {
   final MessageData messageData;
   final GlobalKey<NavigatorState> navigatorKey;
+  final Function()? onTapExpand ;
 
   const PushWidget(
-      {super.key, required this.messageData, required this.navigatorKey});
+      {super.key, required this.messageData, required this.navigatorKey, this.onTapExpand});
 
   @override
   State<PushWidget> createState();

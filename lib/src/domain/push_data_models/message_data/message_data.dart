@@ -14,6 +14,7 @@ class MessageData {
   final MessageDataAllowDismissValue allowDismiss;
   final MessageDataLayoutTypeValue layoutType;
   final MessageDataLayoutTypeValue? onClicklayoutType;
+  final ChatData? chat;
   final List<StepData> steps;
   final List<ButtonData> buttons;
 
@@ -21,6 +22,7 @@ class MessageData {
     required this.title,
     required this.body,
     this.image,
+    this.chat,
     required this.allowDismiss,
     required this.layoutType,
     required this.onClicklayoutType,
@@ -48,6 +50,7 @@ class MessageData {
       onClicklayoutType: MessageDataLayoutTypeValue()..tryParse(dto.onClickLayoutType),
       steps: dto.steps.map((e) => StepData.fromDTO(e)).toList(),
       buttons: dto.buttons.map((e) => ButtonData.fromDTO(e)).toList(),
+      chat: ChatData.tryFromDTO(dto.chat)
     );
   }
 }

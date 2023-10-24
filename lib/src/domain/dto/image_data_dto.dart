@@ -23,8 +23,8 @@ class ImageDataDTO {
   factory ImageDataDTO.fromMap(Map<String, dynamic> map) {
     return ImageDataDTO(
       path: map["path"],
-      width: double.tryParse(map['width']),
-      height: double.tryParse(map['height']),
+      width: double.tryParse(map['width'].toString()),
+      height: double.tryParse(map['height'].toString()),
     );
   }
 }
