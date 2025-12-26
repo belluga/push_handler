@@ -1,39 +1,103 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# push_handler
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Push UI handler for Firebase Messaging that renders rich in-app layouts
+and routes actions based on the push payload.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Parse push payloads into typed data models.
+- Built-in layouts: popup, full screen, bottom sheet, action button, snackbar.
+- Button routing: internal routes, internal routes with item argument, external URL.
+- Stream-based message handling for custom UI wiring.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add `push_handler` to your `pubspec.yaml` and follow the Firebase Messaging
+setup for your platforms.
+
+This package expects data in the Firebase message `data` payload using
+the fields shown below.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Create a top-level background handler and initialize the repository.
 
 ```dart
-const like = 'sample';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:push_handler/push_handler.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Handle background message if needed.
+}
+
+final pushRepository =
+    PushHandlerRepositoryDefault(firebaseMessagingBackgroundHandler);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await pushRepository.init();
+
+  runApp(MyApp(navigatorKey: pushRepository.globalNavigatorKey));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({required this.navigatorKey, super.key});
+
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      home: const Scaffold(body: Center(child: Text('App'))),
+    );
+  }
+}
+```
+
+### Payload format (data)
+
+Minimal example:
+
+```json
+{
+  "title": "Welcome",
+  "body": "Thanks for installing.",
+  "layoutType": "MessageLayoutType.popup",
+  "allowDismiss": true,
+  "steps": [],
+  "buttons": []
+}
+```
+
+With buttons:
+
+```json
+{
+  "title": "Check this out",
+  "body": "Open the details page.",
+  "layoutType": "MessageLayoutType.snackBar",
+  "allowDismiss": true,
+  "steps": [],
+  "buttons": [
+    {
+      "label": "Open",
+      "routeType": "ButtonRouteType.internalRoute",
+      "routeInternal": "/details"
+    },
+    {
+      "label": "Website",
+      "routeType": "ButtonRouteType.externalURL",
+      "routeExternal": "https://example.com"
+    }
+  ]
+}
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+The package exposes `PushHandler` directly if you prefer manual wiring via
+`messageStreamValue`, but the default repository already renders the built-in
+layouts. Ensure your Firebase setup is complete on Android/iOS before use.

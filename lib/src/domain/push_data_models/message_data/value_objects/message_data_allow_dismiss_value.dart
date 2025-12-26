@@ -1,4 +1,4 @@
-import 'package:value_objects/value_object.dart';
+import 'package:value_object_pattern/value_object.dart';
 
 class MessageDataAllowDismissValue extends ValueObject<bool> {
   MessageDataAllowDismissValue({

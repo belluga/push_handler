@@ -6,8 +6,7 @@ class FCMService {
   static Future<RemoteMessage?> getInitialMessage() async =>
       await messaging.getInitialMessage();
 
-  static Future<String> getToken() async =>
-      Future.value(await messaging.getToken());
+  static Future<String?> getToken() async => messaging.getToken();
 
   static Future<void> requestPermission() async {
     await FCMService.messaging.requestPermission(

@@ -1,4 +1,4 @@
-import 'package:push_handler/main.dart';
+import 'package:push_handler/push_handler.dart';
 
 abstract class ChatRepositoryContract {
   

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:push_handler/main.dart';
+import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 import 'package:push_handler/src/presentation/widgets/push_action_button.dart';
 

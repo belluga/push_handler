@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:push_handler/main.dart';
+import 'package:push_handler/push_handler.dart';
 
 void main() {
   final Map<String, dynamic> fakePostData = {

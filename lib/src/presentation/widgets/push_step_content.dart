@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:push_handler/main.dart';
+import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/domain/push_data_models/image_data/image_data.dart';
 
 class PushStepContent extends StatelessWidget {

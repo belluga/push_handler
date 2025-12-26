@@ -1,5 +1,4 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:push_handler/main.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/message_data.dart';
 import 'package:push_handler/src/infrastructure/services/fcm_service.dart';
 import 'package:stream_value/core/stream_value.dart';
@@ -23,8 +22,7 @@ class PushHandler {
     FirebaseMessaging.onBackgroundMessage(onbackgroundStartMessage);
   }
 
-  static Future<String> getToken() async =>
-      Future.value(await FCMService.getToken());
+  static Future<String?> getToken() async => FCMService.getToken();
 
   static Future<void> requestPermission() async =>
       await FCMService.requestPermission();

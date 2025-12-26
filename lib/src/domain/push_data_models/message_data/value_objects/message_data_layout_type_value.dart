@@ -1,6 +1,6 @@
-import 'package:enum_handler/enum_handler.dart';
+import 'package:push_handler/src/domain/utils/enum_handler.dart';
 import 'package:push_handler/src/domain/enums/message_layout_type.dart';
-import 'package:value_objects/value_object.dart';
+import 'package:value_object_pattern/value_object.dart';
 
 class MessageDataLayoutTypeValue extends ValueObject<MessageLayoutType> {
   MessageDataLayoutTypeValue({
