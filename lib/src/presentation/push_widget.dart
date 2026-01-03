@@ -4,11 +4,18 @@ import 'package:push_handler/src/presentation/controller/push_widget_controller.
 
 abstract class PushWidget extends StatefulWidget {
   final MessageData messageData;
-  final GlobalKey<NavigatorState> navigatorKey;
   final Function()? onTapExpand ;
+  final PushNavigationResolver? navigationResolver;
+  final ValueChanged<int>? onStepChanged;
+  final void Function(ButtonData button, int stepIndex)? onButtonPressed;
 
   const PushWidget(
-      {super.key, required this.messageData, required this.navigatorKey, this.onTapExpand});
+      {super.key,
+      required this.messageData,
+      this.onTapExpand,
+      this.navigationResolver,
+      this.onStepChanged,
+      this.onButtonPressed});
 
   @override
   State<PushWidget> createState();
@@ -23,14 +30,18 @@ abstract class PushWidgetState extends State<PushWidget>
     super.initState();
     controller = PushWidgetController(
       messageData: widget.messageData,
-      navigatorKey: widget.navigatorKey,
     );
+    controller.navigationResolver = widget.navigationResolver;
     controller.tabController = TabController(
       length: widget.messageData.steps.length,
       initialIndex: controller.currentIndexStreamValue.value,
       vsync: this,
     );
 
+    _updateTabState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onStepChanged?.call(controller.currentIndexStreamValue.value);
+    });
     controller.tabController.addListener(_listenTabController);
   }
 
@@ -38,19 +49,24 @@ abstract class PushWidgetState extends State<PushWidget>
   Widget build(BuildContext context);
 
   void _listenTabController() {
-    final bool _currentIsLastTabStatus = controller.tabController.index + 1 >=
-        controller.messageData.steps.length;
+    _updateTabState();
+  }
 
-    final int _currentIndex = controller.tabController.index;
+  void _updateTabState() {
+    final stepsLength = controller.messageData.steps.length;
+    final currentIndex = controller.tabController.index;
+    final isLast = stepsLength == 0 || currentIndex + 1 >= stepsLength;
 
-    if (_currentIndex != controller.currentIndexStreamValue.value) {
+    if (currentIndex != controller.currentIndexStreamValue.value ||
+        isLast != controller.isLastTabStreamValue.value) {
       setState(() {
-        controller.isLastTabStreamValue.addValue(_currentIsLastTabStatus);
-        controller.currentIndexStreamValue
-            .addValue(controller.tabController.index);
+        controller.isLastTabStreamValue.addValue(isLast);
+        controller.currentIndexStreamValue.addValue(currentIndex);
       });
+      widget.onStepChanged?.call(currentIndex);
     }
   }
+
 
   @override
   void dispose() {

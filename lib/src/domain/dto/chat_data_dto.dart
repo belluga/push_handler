@@ -13,8 +13,9 @@ class ChatDataDTO {
   });
 
   static ChatDataDTO? tryFromMap(Map<String, dynamic>? map) {
+    if (map == null) return null;
     try {
-      return ChatDataDTO.fromMap(map!);
+      return ChatDataDTO.fromMap(map);
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrintStack(stackTrace: s);
@@ -23,18 +24,14 @@ class ChatDataDTO {
   }
 
   factory ChatDataDTO.fromMap(Map<String, dynamic> map) {
-    Map<String, dynamic>? _imageMap;
-
-    try {
-      _imageMap = map["image"] as Map<String, dynamic>;
-    } catch (e) {
-      _imageMap = {};
-    }
+    final imageMap = map["image"];
+    final Map<String, dynamic> resolvedImageMap =
+        imageMap is Map<String, dynamic> ? imageMap : {};
 
     return ChatDataDTO(
-      buttonLabel: map["buttonLabel"],
-      body: map["body"],
-      image: ImageDataDTO.tryFromMap(_imageMap),
+      buttonLabel: map["buttonLabel"]?.toString() ?? '',
+      body: map["body"]?.toString() ?? '',
+      image: ImageDataDTO.tryFromMap(resolvedImageMap),
     );
   }
 }

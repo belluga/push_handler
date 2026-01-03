@@ -6,8 +6,10 @@ class PushModalBottomSheetContent extends PushWidget {
   const PushModalBottomSheetContent({
     super.key,
     required super.messageData,
-    required super.navigatorKey,
     required super.onTapExpand,
+    super.navigationResolver,
+    super.onStepChanged,
+    super.onButtonPressed,
   });
 
   @override
@@ -18,16 +20,14 @@ class _PushPopupState extends PushWidgetState {
   @override
   Widget build(BuildContext context) {
     final ImageData? _imageData = controller.messageData.image;
-    final BuildContext _context = controller.navigatorKey.currentContext!;
-
-    final TextStyle? _labelMedium = Theme.of(_context).textTheme.titleMedium;
-    final TextStyle? _bodySmall = Theme.of(_context).textTheme.bodySmall;
-    final Color _onPrimary = Theme.of(_context).colorScheme.onPrimary;
+    final TextStyle? _labelMedium = Theme.of(context).textTheme.titleMedium;
+    final TextStyle? _bodySmall = Theme.of(context).textTheme.bodySmall;
+    final Color _onPrimary = Theme.of(context).colorScheme.onPrimary;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Theme.of(_context).colorScheme.primary,
+          color: controller.resolveBackgroundColor(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -6,8 +6,10 @@ class PushSnackBarContent extends PushWidget {
   const PushSnackBarContent({
     super.key,
     required super.messageData,
-    required super.navigatorKey,
     required super.onTapExpand,
+    super.navigationResolver,
+    super.onStepChanged,
+    super.onButtonPressed,
   });
 
   @override
@@ -20,11 +22,11 @@ class _PushPopupState extends PushWidgetState {
     final ImageData? _imageData = controller.messageData.image;
 
     final TextStyle? _labelMedium =
-        Theme.of(controller.navigatorKey.currentContext!).textTheme.titleMedium;
+        Theme.of(context).textTheme.titleMedium;
     final TextStyle? _bodySmall =
-        Theme.of(controller.navigatorKey.currentContext!).textTheme.bodySmall;
+        Theme.of(context).textTheme.bodySmall;
     final Color _onPrimary =
-        Theme.of(controller.navigatorKey.currentContext!).colorScheme.onPrimary;
+        Theme.of(context).colorScheme.onPrimary;
 
     return Row(
       children: [

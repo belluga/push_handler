@@ -6,7 +6,11 @@ import 'package:push_handler/src/presentation/widgets/push_top_bar.dart';
 
 class PushScreenFull extends PushWidget {
   const PushScreenFull(
-      {super.key, required super.messageData, required super.navigatorKey});
+      {super.key,
+      required super.messageData,
+      super.navigationResolver,
+      super.onStepChanged,
+      super.onButtonPressed});
 
   @override
   State<PushWidget> createState() => _PushPopupState();
@@ -17,7 +21,7 @@ class _PushPopupState extends PushWidgetState {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Theme.of(context).colorScheme.primary,
+        color: controller.resolveBackgroundColor(context),
         child: SafeArea(
           child: Column(
             children: [
@@ -29,7 +33,10 @@ class _PushPopupState extends PushWidgetState {
                       .steps[controller.currentIndexStreamValue.value],
                 ),
               ),
-              PushBottomButtons(controller: controller),
+              PushBottomButtons(
+                controller: controller,
+                onButtonPressed: widget.onButtonPressed,
+              ),
             ],
           ),
         ),

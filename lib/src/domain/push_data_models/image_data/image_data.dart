@@ -16,7 +16,10 @@ class ImageData {
 
   static ImageData? tryFromDTO(ImageDataDTO? dto){
     try{
-      return ImageData.fromDTO(dto!);
+      if (dto == null) {
+        return null;
+      }
+      return ImageData.fromDTO(dto);
     }catch(e){
       debugPrint(e.toString());
       return null;

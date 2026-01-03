@@ -4,23 +4,32 @@ import 'package:stream_value/core/stream_value.dart';
 
 class PushWidgetController {
   final MessageData messageData;
-  final GlobalKey<NavigatorState> navigatorKey;
+  PushNavigationResolver? navigationResolver;
   late TabController tabController;
 
   final isLastTabStreamValue = StreamValue<bool>(defaultValue: false);
   final currentIndexStreamValue = StreamValue<int>(defaultValue: 0);
 
-  PushWidgetController({required this.messageData, required this.navigatorKey});
+  PushWidgetController({required this.messageData});
+
+  Color resolveBackgroundColor(BuildContext context) {
+    return messageData.backgroundColor.value ??
+        Theme.of(context).colorScheme.primary;
+  }
 
   void toNext() {
-    tabController.animateTo(tabController.index + 1);
+    final nextIndex = tabController.index + 1;
+    if (nextIndex >= tabController.length) return;
+    tabController.animateTo(nextIndex);
   }
 
   void toPrevious() {
-    tabController.animateTo(tabController.index - 1);
+    final prevIndex = tabController.index - 1;
+    if (prevIndex < 0) return;
+    tabController.animateTo(prevIndex);
   }
 
-  dispose(){
+  void dispose() {
     tabController.dispose();
   }
 }

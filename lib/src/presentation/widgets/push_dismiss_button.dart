@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
 
 class PushDismissButton extends StatelessWidget {
-  const PushDismissButton({super.key});
+  final bool useCloseIcon;
+
+  const PushDismissButton({
+    super.key,
+    this.useCloseIcon = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (useCloseIcon) {
+      return IconButton(
+        onPressed: () => Navigator.of(context).pop(),
+        icon: Icon(
+          Icons.close,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: TextButton(

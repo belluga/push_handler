@@ -13,7 +13,14 @@ class ImageDataDTO {
 
   static ImageDataDTO? tryFromMap(Map<String, dynamic>? map) {
     try {
-      return ImageDataDTO.fromMap(map!);
+      if (map == null || map.isEmpty) {
+        return null;
+      }
+      final Object? rawPath = map["path"];
+      if (rawPath == null || rawPath.toString().trim().isEmpty) {
+        return null;
+      }
+      return ImageDataDTO.fromMap(map);
     } catch (e) {
       debugPrint(e.toString());
       return null;

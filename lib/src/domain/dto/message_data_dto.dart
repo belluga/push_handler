@@ -9,6 +9,7 @@ class MessageDataDTO {
   final ImageDataDTO? image;
   final String allowDismiss;
   final String layoutType;
+  final String? backgroundColor;
   final String? onClickLayoutType;
   final ChatDataDTO? chat;
   final List<StepDataDTO> steps;
@@ -20,6 +21,7 @@ class MessageDataDTO {
     required this.image,
     required this.allowDismiss,
     required this.layoutType,
+    required this.backgroundColor,
     required this.steps,
     required this.buttons,
     this.onClickLayoutType,
@@ -27,28 +29,33 @@ class MessageDataDTO {
   });
 
   factory MessageDataDTO.fromMap(Map<String, dynamic> map) {
-    Map<String, dynamic>? _imageMap;
-
-    try {
-      _imageMap = map["image"];
-    } catch (e) {
-      _imageMap = {};
-    }
+    final imageMap = map["image"];
+    final Map<String, dynamic> resolvedImageMap =
+        imageMap is Map<String, dynamic> ? imageMap : {};
+    final stepsRaw = map['steps'];
+    final buttonsRaw = map['buttons'];
+    final stepsList = stepsRaw is List ? stepsRaw : const [];
+    final buttonsList = buttonsRaw is List ? buttonsRaw : const [];
 
     return MessageDataDTO(
-      title: map["title"],
-      body: map["body"],
-      image: ImageDataDTO.tryFromMap(_imageMap),
-      allowDismiss: map["allowDismiss"],
-      layoutType: map['layoutType'],
-      onClickLayoutType: map['onClickLayoutType'],
-      steps: (map['steps'] as List)
-          .map((e) => StepDataDTO.fromMap(e as Map<String, dynamic>))
+      title: map["title"]?.toString() ?? '',
+      body: map["body"]?.toString() ?? '',
+      image: ImageDataDTO.tryFromMap(resolvedImageMap),
+      allowDismiss: map["allowDismiss"]?.toString() ?? 'false',
+      layoutType: map['layoutType']?.toString() ?? '',
+      backgroundColor: map['backgroundColor']?.toString(),
+      onClickLayoutType: map['onClickLayoutType']?.toString(),
+      steps: stepsList
+          .whereType<Map<String, dynamic>>()
+          .map((e) => StepDataDTO.fromMap(e))
           .toList(),
-      buttons: (map['buttons'] as List)
-          .map((e) => ButtonDataDTO.fromMap(e as Map<String, dynamic>))
+      buttons: buttonsList
+          .whereType<Map<String, dynamic>>()
+          .map((e) => ButtonDataDTO.fromMap(e))
           .toList(),
-      chat: ChatDataDTO.tryFromMap(map["chat"]),
+      chat: ChatDataDTO.tryFromMap(map["chat"] is Map<String, dynamic>
+          ? map["chat"] as Map<String, dynamic>
+          : null),
     );
   }
 }

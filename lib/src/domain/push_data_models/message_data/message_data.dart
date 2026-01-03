@@ -3,6 +3,7 @@ import 'package:push_handler/src/domain/dto/image_data_dto.dart';
 import 'package:push_handler/src/domain/dto/message_data_dto.dart';
 import 'package:push_handler/src/domain/push_data_models/image_data/image_data.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_allow_dismiss_value.dart';
+import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_background_color_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_body_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_layout_type_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_title_value.dart';
@@ -13,6 +14,7 @@ class MessageData {
   final ImageData? image;
   final MessageDataAllowDismissValue allowDismiss;
   final MessageDataLayoutTypeValue layoutType;
+  final MessageDataBackgroundColorValue backgroundColor;
   final MessageDataLayoutTypeValue? onClicklayoutType;
   final ChatData? chat;
   final List<StepData> steps;
@@ -25,6 +27,7 @@ class MessageData {
     this.chat,
     required this.allowDismiss,
     required this.layoutType,
+    required this.backgroundColor,
     required this.onClicklayoutType,
     required this.steps,
     required this.buttons,
@@ -47,6 +50,8 @@ class MessageData {
       image: _imageData,
       allowDismiss: MessageDataAllowDismissValue()..parse(dto.allowDismiss),
       layoutType: MessageDataLayoutTypeValue()..parse(dto.layoutType),
+      backgroundColor:
+          MessageDataBackgroundColorValue()..tryParse(dto.backgroundColor),
       onClicklayoutType: MessageDataLayoutTypeValue()..tryParse(dto.onClickLayoutType),
       steps: dto.steps.map((e) => StepData.fromDTO(e)).toList(),
       buttons: dto.buttons.map((e) => ButtonData.fromDTO(e)).toList(),

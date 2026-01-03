@@ -7,8 +7,13 @@ import 'package:push_handler/src/presentation/widgets/push_top_bar.dart';
 
 class PushStepDialog extends StatelessWidget {
   final PushWidgetController controller;
+  final void Function(ButtonData button, int stepIndex)? onButtonPressed;
 
-  const PushStepDialog({super.key, required this.controller});
+  const PushStepDialog({
+    super.key,
+    required this.controller,
+    this.onButtonPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,7 @@ class PushStepDialog extends StatelessWidget {
         controller.messageData.steps[controller.currentIndexStreamValue.value];
 
     return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: controller.resolveBackgroundColor(context),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
@@ -25,7 +30,10 @@ class PushStepDialog extends StatelessWidget {
             children: [
               PushTopBar(controller: controller),
               PushStepContent(stepData: _stepData),
-              PushBottomButtons(controller: controller),
+              PushBottomButtons(
+                controller: controller,
+                onButtonPressed: onButtonPressed,
+              ),
             ],
           ),
         ],

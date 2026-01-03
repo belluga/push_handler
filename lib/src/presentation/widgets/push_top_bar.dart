@@ -34,7 +34,10 @@ class PushTopBar extends StatelessWidget {
               ],
             ),
           ),
-        if (_allowDismiss) const PushDismissButton(),
+        if (_allowDismiss)
+          PushDismissButton(
+            useCloseIcon: controller.isLastTabStreamValue.value,
+          ),
       ],
     );
   }

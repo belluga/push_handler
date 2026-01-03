@@ -1,14 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
-import 'package:push_handler/src/domain/keys/push_handler_keys.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/material.dart';
 
 class ButtonRouteNavigation {
   final PushWidgetController controller;
   final ButtonData buttonData;
+  final BuildContext context;
 
-  ButtonRouteNavigation({required this.buttonData, required this.controller});
+  ButtonRouteNavigation({
+    required this.buttonData,
+    required this.controller,
+    required this.context,
+  });
 
   void navigate() {
     final ButtonRouteType? _routeType = buttonData.routeType.value;
@@ -33,47 +36,52 @@ class ButtonRouteNavigation {
   }
 
   void navigateToExternal() {
-    final Uri? _externalRoute = buttonData.routeExternal.value;
-    final BuildContext? _currentContext =
-        controller.navigatorKey.currentContext;
-
-    if (_externalRoute != null &&
-        _externalRoute.toString().isNotEmpty &&
-        _currentContext != null) {
-      Navigator.of(_currentContext).pop();
-      launchUrl(_externalRoute);
-    }
+    _navigateWithResolver(
+      ButtonRouteType.externalURL,
+      route: buttonData.routeExternal.value?.toString() ?? '',
+    );
   }
 
   void navigateToInternal() {
-    final String _internalRoute = buttonData.routeInternal.value;
-    final BuildContext? _currentContext =
-        controller.navigatorKey.currentContext;
-
-    if (_internalRoute.isNotEmpty && _currentContext != null) {
-      Navigator.of(_currentContext).pop();
-      Navigator.of(_currentContext).pushNamed(_internalRoute);
-    }
+    _navigateWithResolver(
+      ButtonRouteType.internalRoute,
+      route: buttonData.routeInternal.value,
+      itemKey: null,
+    );
   }
 
   void navigateToInternalWithItem() {
-    final String _internalRoute = buttonData.routeInternal.value;
-    final String _itemIDString = buttonData.itemKey.value;
-    Object? _argumentsObject;
-    final BuildContext? _currentContext =
-        controller.navigatorKey.currentContext;
+    _navigateWithResolver(
+      ButtonRouteType.internalRouteWithItem,
+      route: buttonData.routeInternal.value,
+      itemKey: buttonData.itemKey.value.isEmpty
+          ? null
+          : buttonData.itemKey.value,
+    );
+  }
 
-    if (_internalRoute.isNotEmpty && _currentContext != null) {
-      Navigator.of(_currentContext).pop();
-
-      if (_itemIDString.isNotEmpty) {
-        _argumentsObject = {
-          PushHandlerKeys.itemArgumentKey: buttonData.itemKey
-        };
-      }
-
-      Navigator.of(_currentContext)
-          .pushNamed(_internalRoute, arguments: _argumentsObject);
+  void _navigateWithResolver(
+    ButtonRouteType type, {
+    required String route,
+    String? itemKey,
+  }) {
+    final resolver = controller.navigationResolver;
+    if (resolver == null) {
+      return;
     }
+
+    Navigator.of(context).maybePop();
+
+    resolver(
+      PushRouteRequest(
+        type: type,
+        route: route,
+        routeKey: buttonData.routeKey.value.isEmpty
+            ? null
+            : buttonData.routeKey.value,
+        pathParameters: buttonData.pathParameters,
+        itemKey: itemKey,
+      ),
+    );
   }
 }

@@ -3,7 +3,13 @@ import 'package:push_handler/src/presentation/push_popup/widgets/push_steps_tab.
 import 'package:push_handler/src/presentation/push_widget.dart';
 
 class PushPopup extends PushWidget {
-  const PushPopup({super.key, required super.messageData, required super.navigatorKey});
+  const PushPopup({
+    super.key,
+    required super.messageData,
+    super.navigationResolver,
+    super.onStepChanged,
+    super.onButtonPressed,
+  });
 
   @override
   State<PushWidget> createState() => _PushPopupState();
@@ -14,6 +20,7 @@ class _PushPopupState extends PushWidgetState {
   Widget build(BuildContext context) {
     return PushStepsTab(
       controller: controller,
+      onButtonPressed: widget.onButtonPressed,
     );
   }
 }
