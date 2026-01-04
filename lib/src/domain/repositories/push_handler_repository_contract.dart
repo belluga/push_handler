@@ -106,6 +106,9 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     if (client == null) return;
     _tokenRefreshSubscription =
         FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+      debugPrint(
+        '[Push] Token refreshed; registering token_len=${token.length}.',
+      );
       unawaited(_registerToken(token, client));
     });
   }
@@ -122,10 +125,18 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   Future<void> _registerTokenIfAvailable() async {
     final client = _transportClient;
     if (client == null) return;
+    debugPrint('[Push] Token register flow start.');
     final token = await PushHandler.getToken();
-    if (token == null || token.isEmpty) return;
+    if (token == null || token.isEmpty) {
+      debugPrint('[Push] Token unavailable; skip register.');
+      return;
+    }
+    debugPrint('[Push] Token acquired; token_len=${token.length}.');
     final authToken = await transportConfig.tokenProvider?.call();
-    if (authToken == null || authToken.isEmpty) return;
+    if (authToken == null || authToken.isEmpty) {
+      debugPrint('[Push] Auth token missing; skip register.');
+      return;
+    }
     await _persistTransportConfig();
     await _registerToken(token, client);
   }
@@ -273,10 +284,17 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     PushTransportClient client,
   ) async {
     final deviceId = await transportConfig.deviceIdProvider?.call();
-    if (deviceId == null || deviceId.isEmpty) return;
+    if (deviceId == null || deviceId.isEmpty) {
+      debugPrint('[Push] Device id missing; skip register.');
+      return;
+    }
     final platform = _platformResolver();
     final resolvedPlatform =
         (platform == 'android' || platform == 'ios') ? platform : 'web';
+    debugPrint(
+      '[Push] Registering device: device_id=$deviceId platform=$resolvedPlatform '
+      'token_len=${token.length}.',
+    );
     await client.registerDevice(
       deviceId: deviceId,
       platform: resolvedPlatform,
