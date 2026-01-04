@@ -6,12 +6,14 @@ class PushTransportConfig {
   final String apiPrefix;
   final PushTokenProvider? tokenProvider;
   final PushDeviceIdProvider? deviceIdProvider;
+  final bool enableDebugLogs;
 
   const PushTransportConfig({
     required this.baseUrl,
     this.apiPrefix = '/v1',
     this.tokenProvider,
     this.deviceIdProvider,
+    this.enableDebugLogs = true,
   });
 
   String get resolvedBaseUrl {

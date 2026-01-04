@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:push_handler/src/infrastructure/services/push_transport_client.dart';
+import 'package:push_handler/src/infrastructure/services/push_transport_config.dart';
 import 'package:push_handler/src/infrastructure/services/push_transport_registry.dart';
 
 class PushTransportBackgroundReporter {
   static Future<void> reportDelivered(String pushMessageId) async {
     final config = PushTransportRegistry.config;
     if (config == null) {
-      debugPrint('[Push] Background transport not configured.');
+      if (_shouldLog(null)) {
+        debugPrint('[Push] Background transport not configured.');
+      }
       return;
     }
 
@@ -18,7 +21,12 @@ class PushTransportBackgroundReporter {
         deviceId: deviceId,
       );
     } catch (error) {
-      debugPrint('[Push] Background delivery report failed: $error');
+      if (_shouldLog(config)) {
+        debugPrint('[Push] Background delivery report failed: $error');
+      }
     }
   }
 }
+
+bool _shouldLog(PushTransportConfig? config) =>
+    config?.enableDebugLogs ?? true;

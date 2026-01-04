@@ -1,6 +1,6 @@
 name: push_handler
 description: Firebase Messaging push UI handler with built-in layouts and action routing.
-version: 0.1.1
+version: 0.1.2
 repository: https://github.com/belluga/push_handler.git
 
 environment:
@@ -19,6 +19,7 @@ dependencies:
   value_object_pattern: ^0.0.5
 
 dev_dependencies:
+  test: ^1.25.8
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0

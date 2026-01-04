@@ -5,6 +5,7 @@ import 'package:push_handler/src/infrastructure/services/push_transport_config.d
 class PushTransportClient {
   final Dio _dio;
   final PushTransportConfig _config;
+  bool get _enableDebugLogs => _config.enableDebugLogs;
 
   PushTransportClient(this._config)
       : _dio = Dio(
@@ -92,10 +93,12 @@ class PushTransportClient {
     if (metadata != null && metadata.isNotEmpty) {
       body['metadata'] = metadata;
     }
-    debugPrint(
-      '[Push] action report send: action=$action step_index=$stepIndex'
-      ' button_key=${buttonKey ?? '-'} idempotency_key=$resolvedIdempotencyKey',
-    );
+    if (_enableDebugLogs) {
+      debugPrint(
+        '[Push] action report send: action=$action step_index=$stepIndex'
+        ' button_key=${buttonKey ?? '-'} idempotency_key=$resolvedIdempotencyKey',
+      );
+    }
     await _dio.post(
       '/push/messages/$pushMessageId/actions',
       data: body,
