@@ -42,8 +42,14 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   StreamSubscription<dynamic>? _authSubscription;
   bool _lifecycleObserverRegistered = false;
 
+  void _log(String message) {
+    if (transportConfig.enableDebugLogs) {
+      debugPrint(message);
+    }
+  }
+
   Future<void> init() async {
-    debugPrint('[Push] Repository init start.');
+    _log('[Push] Repository init start.');
     PushTransportRegistry.configure(transportConfig);
     _transportClient ??= PushTransportClient(transportConfig);
     if (_enableFirebaseMessaging) {
@@ -63,7 +69,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     _listenForTokenRefresh();
     _listenForAuthChanges();
     _ensureLifecycleObserver();
-    debugPrint('[Push] Repository init flush queue.');
+    _log('[Push] Repository init flush queue.');
     await flushBackgroundQueue();
   }
 
@@ -125,16 +131,16 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   Future<void> _registerTokenIfAvailable() async {
     final client = _transportClient;
     if (client == null) return;
-    debugPrint('[Push] Token register flow start.');
+    _log('[Push] Token register flow start.');
     final token = await PushHandler.getToken();
     if (token == null || token.isEmpty) {
-      debugPrint('[Push] Token unavailable; skip register.');
+      _log('[Push] Token unavailable; skip register.');
       return;
     }
-    debugPrint('[Push] Token acquired; token_len=${token.length}.');
+    _log('[Push] Token acquired; token_len=${token.length}.');
     final authToken = await transportConfig.tokenProvider?.call();
     if (authToken == null || authToken.isEmpty) {
-      debugPrint('[Push] Auth token missing; skip register.');
+      _log('[Push] Auth token missing; skip register.');
       return;
     }
     await _persistTransportConfig();
@@ -155,6 +161,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       baseUrl: transportConfig.resolvedBaseUrl,
       authToken: authToken,
       deviceId: deviceId,
+      enableDebugLogs: transportConfig.enableDebugLogs,
     );
   }
 
@@ -162,7 +169,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     final client = _transportClient;
     if (client == null) return;
     final items = await _deliveryQueue.load();
-    debugPrint('[Push] Background queue size: ${items.length}.');
+    _log('[Push] Background queue size: ${items.length}.');
     if (items.isEmpty) return;
     final deviceId = await transportConfig.deviceIdProvider?.call();
     final authToken = await transportConfig.tokenProvider?.call();
@@ -179,7 +186,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       if (receivedAt == null) {
         continue;
       }
-      debugPrint('[Push] Background queue processing ${item.pushMessageId}.');
+      _log('[Push] Background queue processing ${item.pushMessageId}.');
       final payload = await _fetchPayload(client, item.pushMessageId);
       if (payload == null) {
         nextItems.add(item);
@@ -187,7 +194,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       }
       final expiresAt = payload.expiresAt;
       if (expiresAt != null && receivedAt.isAfter(expiresAt)) {
-        debugPrint('[Push] Background queue expired ${item.pushMessageId}.');
+        _log('[Push] Background queue expired ${item.pushMessageId}.');
         continue;
       }
 
@@ -218,7 +225,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
         deliveryId: null,
       );
       if (presented) {
-        debugPrint('[Push] Background queue sent ${item.pushMessageId}.');
+        _log('[Push] Background queue sent ${item.pushMessageId}.');
         continue;
       }
 
@@ -229,7 +236,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
           deliveryReported: deliveryReported,
         ),
       );
-      debugPrint('[Push] Background queue failed ${item.pushMessageId}.');
+      _log('[Push] Background queue failed ${item.pushMessageId}.');
     }
 
     await _deliveryQueue.save(nextItems);
@@ -285,13 +292,13 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   ) async {
     final deviceId = await transportConfig.deviceIdProvider?.call();
     if (deviceId == null || deviceId.isEmpty) {
-      debugPrint('[Push] Device id missing; skip register.');
+      _log('[Push] Device id missing; skip register.');
       return;
     }
     final platform = _platformResolver();
     final resolvedPlatform =
         (platform == 'android' || platform == 'ios') ? platform : 'web';
-    debugPrint(
+    _log(
       '[Push] Registering device: device_id=$deviceId platform=$resolvedPlatform '
       'token_len=${token.length}.',
     );
@@ -365,7 +372,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
         String? buttonKey,
         String? deviceId,
       }) {
-        debugPrint(
+        _log(
           '[Push] action report queued: action=$action step_index=$stepIndex'
           ' button_key=${buttonKey ?? '-'} message_id=${deliveryId ?? '-'}',
         );
