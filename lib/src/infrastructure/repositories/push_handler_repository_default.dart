@@ -6,6 +6,7 @@ class PushHandlerRepositoryDefault extends PushHandlerRepositoryContract {
     required super.contextProvider,
     required super.navigationResolver,
     required super.onBackgroundMessage,
+    super.presentationGate,
     super.transportClientOverride,
     super.presenterOverride,
     super.deliveryQueueOverride,

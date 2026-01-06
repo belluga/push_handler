@@ -57,6 +57,34 @@ class MyApp extends StatelessWidget {
 }
 ```
 
+### Presentation gate (optional)
+
+By default, the repository auto-presents the push UI as soon as data is
+available. If your app needs to wait for a bootstrap route stack, provide
+`presentationGate` to delay UI until you are ready.
+
+```dart
+final gate = Completer<void>();
+
+final pushRepository = PushHandlerRepositoryDefault(
+  transportConfig: transportConfig,
+  contextProvider: () => navigatorKey.currentContext,
+  navigationResolver: resolvePushRoute,
+  onBackgroundMessage: firebaseMessagingBackgroundHandler,
+  presentationGate: () => gate.future,
+);
+
+// Call this after your init stack is rendered.
+gate.complete();
+```
+
+### Background queue semantics
+
+- Only the latest queued push is kept. New background deliveries replace
+  previous queued items.
+- When the app is opened via a push tap, the queue is cleared for that
+  `push_message_id` to avoid replays on the next launch.
+
 ### Payload format (data)
 
 Minimal example:

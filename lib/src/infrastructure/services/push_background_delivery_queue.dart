@@ -27,13 +27,7 @@ class PushBackgroundDeliveryQueue {
   }
 
   Future<void> enqueue(PushDeliveryQueueItem item) async {
-    final items = await load();
-    final updated = [
-      for (final existing in items)
-        if (existing.pushMessageId != item.pushMessageId) existing,
-      item,
-    ];
-    await save(updated);
+    await save([item]);
   }
 
   Future<void> removeByIds(List<String> ids) async {
