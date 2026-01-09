@@ -37,6 +37,7 @@ abstract class PushWidgetState extends State<PushWidget>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   late PushWidgetController controller;
   StreamSubscription<bool>? _gateSubscription;
+  StreamSubscription<bool>? _submitSubscription;
   bool _isReady = false;
 
   @protected
@@ -61,6 +62,11 @@ abstract class PushWidgetState extends State<PushWidget>
     controller.tabController.addListener(_listenTabController);
     WidgetsBinding.instance.addObserver(this);
     _gateSubscription = controller.canAdvanceStreamValue.stream.listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    _submitSubscription = controller.canSubmitStreamValue.stream.listen((_) {
       if (mounted) {
         setState(() {});
       }
@@ -98,6 +104,7 @@ abstract class PushWidgetState extends State<PushWidget>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _gateSubscription?.cancel();
+    _submitSubscription?.cancel();
     super.dispose();
     controller.dispose();
   }

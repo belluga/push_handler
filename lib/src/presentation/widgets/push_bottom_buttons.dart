@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 import 'package:push_handler/src/presentation/widgets/push_action_buttons_area.dart';
+import 'package:push_handler/src/presentation/widgets/push_action_button.dart';
 class PushBottomButtons extends StatelessWidget {
   final PushWidgetController controller;
   final void Function(ButtonData button, int stepIndex)? onButtonPressed;
@@ -25,10 +26,10 @@ class PushBottomButtons extends StatelessWidget {
         controller.messageData.buttons.isNotEmpty && isLastStep;
     final isQuestion =
         step?.type == 'question' || step?.type == 'selector';
-    final shouldShowDefaultContinue =
-        !hasStepButtons && !hasGlobalButtons && !isQuestion;
+    final shouldShowDefaultContinue = !hasStepButtons && !hasGlobalButtons;
     final showBack = currentIndex > 0;
     final canAdvance = controller.canAdvanceStreamValue.value;
+    final canSubmit = controller.canSubmitStreamValue.value;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,8 +55,12 @@ class PushBottomButtons extends StatelessWidget {
           Align(
             alignment: Alignment.center,
             child: ElevatedButton(
-              onPressed: canAdvance
+              onPressed: canAdvance && (!isQuestion || canSubmit)
                   ? () async {
+                      if (isQuestion && controller.primaryAction != null) {
+                        await controller.primaryAction!.call();
+                        return;
+                      }
                       if (isLastStep) {
                         if (controller.messageData.closeOnLastStepAction.value) {
                           controller.requestClose();
@@ -66,6 +71,7 @@ class PushBottomButtons extends StatelessWidget {
                       await controller.toNext();
                     }
                   : null,
+              style: PushActionButton.primaryStyle(context),
               child: const Text('Continuar'),
             ),
           ),

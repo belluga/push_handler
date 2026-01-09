@@ -124,23 +124,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    var continueButton = tester.widget<ElevatedButton>(
-      find.widgetWithText(ElevatedButton, 'Continuar'),
-    );
-    expect(continueButton.onPressed, isNull);
+    expect(controller.canSubmitStreamValue.value, isFalse);
 
     await tester.tap(find.text('Option A'));
     await tester.pumpAndSettle();
-    continueButton = tester.widget<ElevatedButton>(
-      find.widgetWithText(ElevatedButton, 'Continuar'),
-    );
-    expect(continueButton.onPressed, isNull);
+    expect(controller.canSubmitStreamValue.value, isFalse);
 
     await tester.tap(find.text('Option B'));
     await tester.pumpAndSettle();
-    continueButton = tester.widget<ElevatedButton>(
-      find.widgetWithText(ElevatedButton, 'Continuar'),
-    );
-    expect(continueButton.onPressed, isNotNull);
+    expect(controller.canSubmitStreamValue.value, isTrue);
   });
 }

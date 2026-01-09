@@ -30,6 +30,9 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
   @override
   void initState() {
     super.initState();
+    _textController.addListener(_syncCanSubmit);
+    widget.controller.setPrimaryAction(_submit);
+    _syncCanSubmit();
     _loadOptions();
   }
 
@@ -39,6 +42,8 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
     if (oldWidget.stepData.slug != widget.stepData.slug) {
       _selectedValues.clear();
       _textController.clear();
+      widget.controller.setPrimaryAction(_submit);
+      _syncCanSubmit();
       _loadOptions();
     }
   }
@@ -75,6 +80,10 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
     if (max != null && _selectedValues.length > max) return false;
     if (_selectedValues.length < min) return false;
     return true;
+  }
+
+  void _syncCanSubmit() {
+    widget.controller.canSubmitStreamValue.addValue(_isSelectionValid());
   }
 
   Future<void> _submit() async {
@@ -114,22 +123,13 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
     final layout = config?.layout ?? 'list';
 
     if (questionType == 'text') {
-      return Column(
-        children: [
-          TextField(
-            controller: _textController,
-            minLines: 1,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _submit,
-            child: const Text('Continuar'),
-          ),
-        ],
+      return TextField(
+        controller: _textController,
+        minLines: 1,
+        maxLines: 4,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+        ),
       );
     }
 
@@ -137,17 +137,7 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final content = _buildOptions(context, layout);
-    return Column(
-      children: [
-        content,
-        const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: _isSelectionValid() ? _submit : null,
-          child: const Text('Continuar'),
-        ),
-      ],
-    );
+    return _buildOptions(context, layout);
   }
 
   Widget _buildOptions(BuildContext context, String layout) {
@@ -256,10 +246,15 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
       }
       _selectedValues.add(option.value);
     });
+    _syncCanSubmit();
   }
 
   @override
   void dispose() {
+    _textController.removeListener(_syncCanSubmit);
+    if (widget.controller.primaryAction == _submit) {
+      widget.controller.setPrimaryAction(null);
+    }
     _textController.dispose();
     super.dispose();
   }

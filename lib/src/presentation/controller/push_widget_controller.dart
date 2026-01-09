@@ -12,7 +12,9 @@ class PushWidgetController {
   final isLastTabStreamValue = StreamValue<bool>(defaultValue: false);
   final currentIndexStreamValue = StreamValue<int>(defaultValue: 0);
   final canAdvanceStreamValue = StreamValue<bool>(defaultValue: true);
+  final canSubmitStreamValue = StreamValue<bool>(defaultValue: true);
   bool _allowCloseOnce = false;
+  Future<void> Function()? _primaryAction;
 
   PushWidgetController({
     required this.messageData,
@@ -59,6 +61,12 @@ class PushWidgetController {
     _allowCloseOnce = false;
     return true;
   }
+
+  void setPrimaryAction(Future<void> Function()? action) {
+    _primaryAction = action;
+  }
+
+  Future<void> Function()? get primaryAction => _primaryAction;
 
   Future<int> findInitialRenderableIndex() async {
     return _findRenderableIndex(startIndex: 0, direction: 1);
@@ -209,6 +217,7 @@ class PushWidgetController {
   }
 
   void dispose() {
+    canSubmitStreamValue.dispose();
     canAdvanceStreamValue.dispose();
     currentIndexStreamValue.dispose();
     isLastTabStreamValue.dispose();

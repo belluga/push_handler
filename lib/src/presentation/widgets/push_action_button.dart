@@ -19,6 +19,18 @@ class PushActionButton extends StatefulWidget {
     required this.closeOnTap,
   });
 
+  static ButtonStyle primaryStyle(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ElevatedButton.styleFrom(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 26),
+      backgroundColor: colorScheme.primary,
+      foregroundColor: colorScheme.onPrimary,
+    );
+  }
+
   @override
   State<PushActionButton> createState() => _PushActionButtonState();
 }
@@ -34,18 +46,13 @@ class _PushActionButtonState extends State<PushActionButton> {
     final labelStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
           color: colorScheme.onPrimary,
         );
+    final buttonStyle = PushActionButton.primaryStyle(context);
 
     return Container(
       margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
       child: ElevatedButton(
         onPressed: isDisabled ? null : () => _handlePress(context),
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 26),
-          backgroundColor: colorScheme.primary,
-        ),
+        style: buttonStyle,
         child: shouldShowLoading && _isLoading
             ? Row(
                 mainAxisSize: MainAxisSize.min,
@@ -66,6 +73,7 @@ class _PushActionButtonState extends State<PushActionButton> {
       ),
     );
   }
+
 
   Future<void> _handlePress(BuildContext context) async {
     final shouldShowLoading = widget.buttonData.showLoading.value;
