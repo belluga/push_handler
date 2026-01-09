@@ -7,6 +7,8 @@ class ButtonDataDTO {
   final Map<String, dynamic>? pathParameters;
   final String? color;
   final String? itemKey;
+  final String? customAction;
+  final String? showLoading;
 
   ButtonDataDTO({
     required this.label,
@@ -17,6 +19,8 @@ class ButtonDataDTO {
     this.pathParameters,
     this.color,
     this.itemKey,
+    this.customAction,
+    this.showLoading,
   });
 
   factory ButtonDataDTO.fromMap(Map<String, dynamic> map) {
@@ -25,17 +29,23 @@ class ButtonDataDTO {
         action is Map<String, dynamic> ? action : <String, dynamic>{};
     final rawType = actionMap['type'] ?? map['routeType'];
     final normalizedType = _normalizeRouteType(rawType);
+    final customAction = actionMap['custom_action']?.toString();
+    final resolvedType = normalizedType.isEmpty && customAction != null
+        ? _normalizeRouteType('custom')
+        : normalizedType;
     final rawPathParameters = actionMap['path_parameters'];
     return ButtonDataDTO(
       label: map["label"],
       routeInternal: map['routeInternal'],
       routeExternal: actionMap['url'] ?? map['routeExternal'],
-      routeType: normalizedType,
+      routeType: resolvedType,
       routeKey: actionMap['route_key'],
       pathParameters:
           rawPathParameters is Map<String, dynamic> ? rawPathParameters : null,
       color: map['color'],
       itemKey: map['itemKey'],
+      customAction: customAction,
+      showLoading: map['show_loading']?.toString(),
     );
   }
 
@@ -46,6 +56,10 @@ class ButtonDataDTO {
         return 'internalRoute';
       case 'external':
         return 'externalURL';
+      case 'custom':
+        return 'customAction';
+      case 'custom_action':
+        return 'customAction';
       default:
         return normalized;
     }

@@ -14,12 +14,14 @@ void main() {
       'title': 'Push title',
       'body': 'Push body',
       'layoutType': layoutType.name,
-      'allowDismiss': true,
+      'closeOnLastStepAction': true,
       'backgroundColor': '#FFFFFF',
       'onClickLayoutType': MessageLayoutType.fullScreen.name,
       'steps': List.generate(
         steps,
         (index) => {
+          'slug': 'step_${index + 1}',
+          'type': 'copy',
           'title': 'Step ${index + 1}',
           'body': 'Step body ${index + 1}',
         },
@@ -57,13 +59,16 @@ void main() {
       reportAction: ({
         required String action,
         required int stepIndex,
+        required StepData step,
         String? buttonKey,
+        ButtonData? button,
         String? deviceId,
       }) async {
         actions.add({
           'action': action,
           'step_index': stepIndex,
           'button_key': buttonKey,
+          'step_slug': step.slug,
         });
       },
       resolvedRouteProvider: () => resolvedRoute,
@@ -84,8 +89,12 @@ void main() {
 
     expect(find.byType(Dialog), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.close).first);
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuar').first);
+    await tester.pump();
+    if (find.byType(Dialog).evaluate().isNotEmpty) {
+      Navigator.of(harness.context).pop();
+      await tester.pumpAndSettle();
+    }
     await presentFuture;
 
     final actions = harness.actions.map((item) => item['action']).toList();
@@ -119,11 +128,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(PushScreenFull), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.arrow_forward_ios));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuar').first);
+    await tester.pump();
 
     await tester.tap(find.text('Go'));
     await tester.pumpAndSettle();
+    if (find.byType(PushScreenFull).evaluate().isNotEmpty) {
+      Navigator.of(harness.context).pop();
+      await tester.pumpAndSettle();
+    }
     await presentFuture;
 
     final actions = harness.actions;

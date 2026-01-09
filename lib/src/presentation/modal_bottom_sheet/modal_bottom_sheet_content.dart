@@ -10,6 +10,11 @@ class PushModalBottomSheetContent extends PushWidget {
     super.navigationResolver,
     super.onStepChanged,
     super.onButtonPressed,
+    super.onCustomAction,
+    super.gatekeeper,
+    super.optionsBuilder,
+    super.onStepSubmit,
+    super.onGateBlocked,
   });
 
   @override
@@ -22,18 +27,18 @@ class _PushPopupState extends PushWidgetState {
     final ImageData? _imageData = controller.messageData.image;
     final TextStyle? _labelMedium = Theme.of(context).textTheme.titleMedium;
     final TextStyle? _bodySmall = Theme.of(context).textTheme.bodySmall;
-    final Color _onPrimary = Theme.of(context).colorScheme.onPrimary;
+    final Color _textColor = Theme.of(context).colorScheme.onSurface;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
           color: controller.resolveBackgroundColor(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
               if (_imageData != null)
                 Container(
                   width: 32,
@@ -50,7 +55,7 @@ class _PushPopupState extends PushWidgetState {
                     controller.messageData.title.value,
                     textAlign: TextAlign.left,
                     style: _labelMedium?.copyWith(
-                      color: _onPrimary,
+                      color: _textColor,
                     ),
                   ),
                 ),
@@ -59,7 +64,7 @@ class _PushPopupState extends PushWidgetState {
                 onPressed: widget.onTapExpand,
                 icon: Icon(
                   Icons.open_in_full,
-                  color: _onPrimary,
+                  color: _textColor,
                 ),
               )
             ],
@@ -72,7 +77,7 @@ class _PushPopupState extends PushWidgetState {
                   child: Text(
                     controller.messageData.body.value,
                     style: _bodySmall?.copyWith(
-                      color: _onPrimary,
+                      color: _textColor,
                     ),
                   ),
                 )

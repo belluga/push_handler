@@ -96,7 +96,8 @@ class PushTransportClient {
     if (_enableDebugLogs) {
       debugPrint(
         '[Push] action report send: action=$action step_index=$stepIndex'
-        ' button_key=${buttonKey ?? '-'} idempotency_key=$resolvedIdempotencyKey',
+        ' button_key=${buttonKey ?? '-'} message_id=${messageId ?? '-'}'
+        ' idempotency_key=$resolvedIdempotencyKey',
       );
     }
     await _dio.post(

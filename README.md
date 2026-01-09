@@ -9,6 +9,8 @@ and routes actions based on the push payload.
 - Built-in layouts: popup, full screen, bottom sheet, action button, snackbar.
 - Button routing: internal routes, internal routes with item argument, external URL.
 - Stream-based message handling for custom UI wiring.
+- Step-based onboarding with gates, per-step buttons, and dynamic selectors.
+- Event emission for push telemetry (delivered/opened/step/button/submit).
 
 ## Getting started
 
@@ -94,7 +96,7 @@ Minimal example:
   "title": "Welcome",
   "body": "Thanks for installing.",
   "layoutType": "MessageLayoutType.popup",
-  "allowDismiss": true,
+  "closeOnLastStepAction": true,
   "steps": [],
   "buttons": []
 }
@@ -107,7 +109,7 @@ With buttons:
   "title": "Check this out",
   "body": "Open the details page.",
   "layoutType": "MessageLayoutType.snackBar",
-  "allowDismiss": true,
+  "closeOnLastStepAction": true,
   "steps": [],
   "buttons": [
     {
@@ -122,6 +124,88 @@ With buttons:
     }
   ]
 }
+```
+
+### Dynamic onboarding steps
+
+Steps are slug-based and can include gates, per-step buttons, and question/selector
+configs. Body supports Markdown or HTML (images included).
+
+```json
+{
+  "title": "Welcome",
+  "body": "Start onboarding",
+  "layoutType": "MessageLayoutType.fullScreen",
+  "closeOnLastStepAction": false,
+  "steps": [
+    {
+      "slug": "notify",
+      "type": "cta",
+      "title": "Be notified",
+      "body": "Allow notifications so we can alert you.",
+      "dismissible": false,
+      "gate": {
+        "type": "notifications_permission",
+        "onFail": {
+          "toast": "Enable notifications to continue.",
+          "fallback_step": "notify"
+        }
+      },
+      "buttons": [
+        {
+          "label": "Enable",
+          "action": {
+            "type": "custom",
+            "custom_action": "request_notifications"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "prefs",
+      "type": "question",
+      "title": "What do you like?",
+      "body": "Pick up to 3 categories.",
+      "onSubmit": { "action": "save_response", "store_key": "preferences.tags" },
+      "config": {
+        "question_type": "multi_select",
+        "layout": "tags",
+        "min_selected": 1,
+        "max_selected": 3,
+        "option_source": {
+          "type": "method",
+          "name": "getTags",
+          "params": { "include": ["beaches", "food", "culture"] },
+          "cache_ttl_sec": 3600
+        }
+      }
+    }
+  ],
+  "buttons": []
+}
+```
+
+### Hooks for app integration
+
+```dart
+final pushRepository = PushHandlerRepositoryDefault(
+  transportConfig: transportConfig,
+  contextProvider: () => navigatorKey.currentContext,
+  navigationResolver: resolvePushRoute,
+  onBackgroundMessage: firebaseMessagingBackgroundHandler,
+  gatekeeper: (step) async => true, // gate check per step
+  optionsBuilder: (source) async => [], // dynamic options
+  onStepSubmit: (answer, step) async {}, // persist answers
+  onPushEvent: (event) {}, // telemetry bridge
+);
+```
+
+### Debug injection
+
+Use the debug hook to test the payload pipeline without FCM:
+
+```dart
+await pushRepository.debugInjectMessageId('push-message-id');
 ```
 
 ## Additional information

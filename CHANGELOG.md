@@ -1,3 +1,11 @@
+## 0.2.0
+
+- Add slug-based step schema with per-step buttons, dismissible steps, and closeOnLastStepAction.
+- Add gatekeeper/onSubmit/optionsBuilder hooks for dynamic onboarding.
+- Emit push events for delivery, steps, buttons, submits, and gate blocks.
+- Add debug injection hook for message ID display pipeline tests.
+- Render Markdown/HTML step bodies with image support.
+
 ## 0.1.3
 
 - Add an optional presentation gate to defer UI until app readiness.

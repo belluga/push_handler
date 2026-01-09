@@ -11,12 +11,17 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     required this.navigationResolver,
     required this.onBackgroundMessage,
     this.presentationGate,
+    this.gatekeeper,
+    this.optionsBuilder,
+    this.onStepSubmit,
+    this.onCustomAction,
     PushTransportClient? transportClientOverride,
     PushMessagePresenter? presenterOverride,
     PushBackgroundDeliveryQueue? deliveryQueueOverride,
     bool enableFirebaseMessaging = true,
     this.authChangeStream,
     String Function()? platformResolver,
+    this.onPushEvent,
   })  : _platformResolver = platformResolver ?? _defaultPlatformResolver,
         _transportClient = transportClientOverride,
         _deliveryQueue = deliveryQueueOverride ?? PushBackgroundDeliveryQueue(),
@@ -25,6 +30,10 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
             PushMessagePresenter(
               contextProvider: contextProvider,
               navigationResolver: navigationResolver,
+              gatekeeper: gatekeeper,
+              optionsBuilder: optionsBuilder,
+              onStepSubmit: onStepSubmit,
+              onCustomAction: onCustomAction,
             );
 
   final PushTransportConfig transportConfig;
@@ -32,6 +41,11 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   final PushNavigationResolver? navigationResolver;
   final Future<void> Function(RemoteMessage) onBackgroundMessage;
   final Future<void> Function()? presentationGate;
+  final Future<bool> Function(StepData step)? gatekeeper;
+  final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
+  final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
+  final void Function(PushEvent event)? onPushEvent;
   final Stream<dynamic>? authChangeStream;
   final String Function() _platformResolver;
   final PushMessagePresenter presenter;
@@ -45,15 +59,26 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   bool _lifecycleObserverRegistered = false;
   final StreamController<RemoteMessage> _messageController =
       StreamController<RemoteMessage>.broadcast();
+  final StreamController<PushEvent> _pushEventController =
+      StreamController<PushEvent>.broadcast();
   final Map<String, DateTime> _presentedPushIds = {};
   final Set<String> _presentingPushIds = {};
   static const Duration _presentationDedupeWindow = Duration(minutes: 2);
 
   Stream<RemoteMessage> get messageStream => _messageController.stream;
+  Stream<PushEvent> get pushEventStream => _pushEventController.stream;
 
   void _log(String message) {
     if (transportConfig.enableDebugLogs) {
       debugPrint(message);
+    }
+  }
+
+  void _emitPushEvent(PushEvent event) {
+    _pushEventController.add(event);
+    final handler = onPushEvent;
+    if (handler != null) {
+      handler(event);
     }
   }
 
@@ -68,8 +93,9 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       );
       pushHandler = PushHandler(
         onbackgroundStartMessage: _handleBackgroundMessage,
-        onMessage: _handleMessage,
-        onMessageOpenedApp: _handleMessage,
+        onMessage: (message) => _handleMessage(message, source: 'in_app'),
+        onMessageOpenedApp: (message) =>
+            _handleMessage(message, source: 'notification_tap'),
       );
       await pushHandler.init();
     }
@@ -99,17 +125,30 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
 
   @visibleForTesting
   Future<void> handleMessageForTesting(RemoteMessage message) async {
-    await _handleMessage(message);
+    await _handleMessage(message, source: 'in_app');
   }
 
   Future<void> _handleBackgroundMessage(RemoteMessage message) async {
     final pushMessageId = message.data['push_message_id']?.toString();
     if (pushMessageId == null || pushMessageId.isEmpty) return;
+    final messageInstanceId =
+        message.data['message_instance_id']?.toString() ?? message.messageId;
     await PushTransportBackgroundReporter.reportDelivered(pushMessageId);
+    _emitPushEvent(
+      PushEvent(
+        type: 'delivered',
+        pushId: pushMessageId,
+        appState: 'background',
+        source: 'background_delivery',
+        timestamp: DateTime.now().toUtc(),
+        messageInstanceId: messageInstanceId,
+      ),
+    );
     await onBackgroundMessage(message);
   }
 
-  Future<void> _handleMessage(RemoteMessage message) async {
+  Future<void> _handleMessage(RemoteMessage message,
+      {required String source}) async {
     final client = _transportClient;
     if (client == null) return;
     final pushMessageId = message.data['push_message_id']?.toString();
@@ -117,22 +156,26 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       _messageController.add(message);
       return;
     }
+    final messageInstanceId =
+        message.data['message_instance_id']?.toString() ?? message.messageId;
     await _deliveryQueue.removeByIds([pushMessageId]);
     final payload = await _fetchPayload(client, pushMessageId);
     final mergedMessage = payload == null
         ? message
         : _mergePayloadIntoMessage(message, payload.payload);
     _messageController.add(mergedMessage);
-    await _reportDelivered(message, client);
+    await _reportDelivered(mergedMessage, client);
     if (payload == null) return;
     final deviceId = await transportConfig.deviceIdProvider?.call();
     if (deviceId == null || deviceId.isEmpty) return;
     final presented = await _presentMessageData(
       payload.messageData,
       pushMessageId: pushMessageId,
+      messageInstanceId: messageInstanceId,
       client: client,
       deviceId: deviceId,
-      deliveryId: message.messageId,
+      deliveryId: messageInstanceId,
+      source: source,
     );
     if (presented) {
       await _deliveryQueue.removeByIds([pushMessageId]);
@@ -140,6 +183,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   }
 
   void _listenForTokenRefresh() {
+    if (!_enableFirebaseMessaging) return;
     final client = _transportClient;
     if (client == null) return;
     _tokenRefreshSubscription =
@@ -161,6 +205,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   }
 
   Future<void> _registerTokenIfAvailable() async {
+    if (!_enableFirebaseMessaging) return;
     final client = _transportClient;
     if (client == null) return;
     _log('[Push] Token register flow start.');
@@ -218,7 +263,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       if (receivedAt == null) {
         continue;
       }
-      _log('[Push] Background queue processing ${item.pushMessageId}.');
+    _log('[Push] Background queue processing ${item.pushMessageId} instance=${item.messageInstanceId ?? '-'}.');
       final payload = await _fetchPayload(client, item.pushMessageId);
       if (payload == null) {
         nextItems.add(item);
@@ -226,7 +271,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       }
       final expiresAt = payload.expiresAt;
       if (expiresAt != null && receivedAt.isAfter(expiresAt)) {
-        _log('[Push] Background queue expired ${item.pushMessageId}.');
+      _log('[Push] Background queue expired ${item.pushMessageId} instance=${item.messageInstanceId ?? '-'}.');
         continue;
       }
 
@@ -238,6 +283,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
             action: 'delivered',
             stepIndex: 0,
             deviceId: deviceId,
+            messageId: item.messageInstanceId,
             metadata: {
               'received_at': item.receivedAtIso,
             },
@@ -252,12 +298,14 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
       final presented = await _presentMessageData(
         payload.messageData,
         pushMessageId: item.pushMessageId,
+        messageInstanceId: item.messageInstanceId,
         client: client,
         deviceId: deviceId,
         deliveryId: null,
+        source: 'background_delivery',
       );
       if (presented) {
-        _log('[Push] Background queue sent ${item.pushMessageId}.');
+      _log('[Push] Background queue sent ${item.pushMessageId} instance=${item.messageInstanceId ?? '-'}.');
         await _deliveryQueue.removeByIds([item.pushMessageId]);
         continue;
       }
@@ -266,13 +314,30 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
         PushDeliveryQueueItem(
           pushMessageId: item.pushMessageId,
           receivedAtIso: item.receivedAtIso,
+          messageInstanceId: item.messageInstanceId,
           deliveryReported: deliveryReported,
         ),
       );
-      _log('[Push] Background queue failed ${item.pushMessageId}.');
+      _log('[Push] Background queue failed ${item.pushMessageId} instance=${item.messageInstanceId ?? '-'}.');
     }
 
     await _deliveryQueue.save(nextItems);
+  }
+
+  Future<void> debugInjectMessageId(String messageId) async {
+    final client = _transportClient;
+    if (client == null) return;
+    final payload = await _fetchPayload(client, messageId);
+    if (payload == null) return;
+    final deviceId = await transportConfig.deviceIdProvider?.call();
+    if (deviceId == null || deviceId.isEmpty) return;
+    await _presentMessageData(
+      payload.messageData,
+      pushMessageId: messageId,
+      client: client,
+      deviceId: deviceId,
+      source: 'in_app',
+    );
   }
 
   Future<_PushMessagePayload?> _fetchPayload(
@@ -353,7 +418,8 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     if (pushMessageId == null || pushMessageId.isEmpty) return;
     final deviceId = await transportConfig.deviceIdProvider?.call();
     if (deviceId == null || deviceId.isEmpty) return;
-    final deliveryId = message.messageId;
+    final deliveryId =
+        message.data['message_instance_id']?.toString() ?? message.messageId;
     try {
       await client.reportAction(
         pushMessageId: pushMessageId,
@@ -372,9 +438,17 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     Map<String, dynamic> payload,
   ) {
     final pushMessageId = message.data['push_message_id']?.toString();
+    final messageInstanceId =
+        message.data['message_instance_id']?.toString();
     final mergedData = Map<String, dynamic>.from(payload);
     if (pushMessageId != null && pushMessageId.isNotEmpty) {
       mergedData['push_message_id'] = pushMessageId;
+    }
+    if ((mergedData['message_instance_id'] == null ||
+            mergedData['message_instance_id'].toString().isEmpty) &&
+        messageInstanceId != null &&
+        messageInstanceId.isNotEmpty) {
+      mergedData['message_instance_id'] = messageInstanceId;
     }
     final map = message.toMap();
     map['data'] = mergedData;
@@ -384,35 +458,39 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   Future<bool> _presentMessageData(
     MessageData messageData, {
     required String pushMessageId,
+    String? messageInstanceId,
     required PushTransportClient client,
     required String deviceId,
     String? deliveryId,
+    required String source,
   }) async {
-    if (_shouldSkipPresentation(pushMessageId)) {
-      _log('[Push] Presentation skipped (dedupe) for $pushMessageId.');
+    final presentationKey =
+        _resolvePresentationKey(pushMessageId, messageInstanceId);
+    if (_shouldSkipPresentation(presentationKey)) {
+    _log('[Push] Presentation skipped (dedupe) for $presentationKey.');
       return true;
     }
-    if (!_markPresenting(pushMessageId)) {
-      _log('[Push] Presentation skipped (in-flight) for $pushMessageId.');
+    if (!_markPresenting(presentationKey)) {
+    _log('[Push] Presentation skipped (in-flight) for $presentationKey.');
       return true;
     }
     final gate = presentationGate;
     if (gate != null) {
       try {
-        _log('[Push] Presentation gate wait start for $pushMessageId.');
+        _log('[Push] Presentation gate wait start for $presentationKey.');
         await gate();
-        _log('[Push] Presentation gate released for $pushMessageId.');
+        _log('[Push] Presentation gate released for $presentationKey.');
       } catch (_) {
         // Ignore gating errors to avoid blocking delivery.
       }
     }
     final context = contextProvider?.call();
     if (context == null) {
-      _clearPresenting(pushMessageId);
+      _clearPresenting(presentationKey);
       return false;
     }
-    _log('[Push] Presenting message $pushMessageId.');
-    _markPresented(pushMessageId);
+    _log('[Push] Presenting message $presentationKey.');
+    _markPresented(presentationKey);
     try {
       await presenter.present(
         messageData: messageData,
@@ -420,12 +498,35 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
         reportAction: ({
           required String action,
           required int stepIndex,
+          required StepData step,
           String? buttonKey,
+          ButtonData? button,
           String? deviceId,
         }) {
           _log(
             '[Push] action report queued: action=$action step_index=$stepIndex'
             ' button_key=${buttonKey ?? '-'} message_id=${deliveryId ?? '-'}',
+          );
+          _emitPushEvent(
+            PushEvent(
+              type: _resolveEventType(action),
+              pushId: pushMessageId,
+              appState: 'foreground',
+              source: source,
+              timestamp: DateTime.now().toUtc(),
+              messageInstanceId: deliveryId ?? messageInstanceId,
+              stepSlug: step.slug.isEmpty ? null : step.slug,
+              stepType: step.type.isEmpty ? null : step.type,
+              buttonKey: buttonKey,
+              actionType: button?.routeType.value?.name,
+              routeKey: button?.routeKey.value.isEmpty == true
+                  ? null
+                  : button?.routeKey.value,
+              metadata: {
+                'step_slug': step.slug,
+                'step_type': step.type,
+              },
+            ),
           );
           unawaited(
             client
@@ -435,7 +536,13 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
                   stepIndex: stepIndex,
                   buttonKey: buttonKey,
                   deviceId: deviceId,
-                  messageId: deliveryId,
+                  messageId: deliveryId ?? messageInstanceId,
+                  metadata: {
+                    'step_slug': step.slug,
+                    'step_type': step.type,
+                    if ((deliveryId ?? messageInstanceId) != null)
+                      'message_instance_id': (deliveryId ?? messageInstanceId),
+                  },
                 )
                 .catchError((_) {}),
           );
@@ -443,21 +550,29 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
         },
       );
     } finally {
-      _clearPresenting(pushMessageId);
+      _clearPresenting(presentationKey);
     }
     return true;
   }
 
-  bool _shouldSkipPresentation(String pushMessageId) {
-    final lastPresented = _presentedPushIds[pushMessageId];
+  String _resolvePresentationKey(
+    String pushMessageId,
+    String? messageInstanceId,
+  ) {
+    final candidate = messageInstanceId ?? '';
+    return candidate.isNotEmpty ? candidate : pushMessageId;
+  }
+
+  bool _shouldSkipPresentation(String presentationKey) {
+    final lastPresented = _presentedPushIds[presentationKey];
     if (lastPresented == null) {
       return false;
     }
     return DateTime.now().difference(lastPresented) < _presentationDedupeWindow;
   }
 
-  void _markPresented(String pushMessageId) {
-    _presentedPushIds[pushMessageId] = DateTime.now();
+  void _markPresented(String presentationKey) {
+    _presentedPushIds[presentationKey] = DateTime.now();
     _cleanupPresentedIds();
   }
 
@@ -466,21 +581,44 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     _presentedPushIds.removeWhere((_, value) => value.isBefore(threshold));
   }
 
-  bool _markPresenting(String pushMessageId) {
-    if (_presentingPushIds.contains(pushMessageId)) {
+  bool _markPresenting(String presentationKey) {
+    if (_presentingPushIds.contains(presentationKey)) {
       return false;
     }
-    _presentingPushIds.add(pushMessageId);
+    _presentingPushIds.add(presentationKey);
     return true;
   }
 
-  void _clearPresenting(String pushMessageId) {
-    _presentingPushIds.remove(pushMessageId);
+  void _clearPresenting(String presentationKey) {
+    _presentingPushIds.remove(presentationKey);
+  }
+
+  String _resolveEventType(String action) {
+    switch (action) {
+      case 'opened':
+        return 'opened';
+      case 'step_viewed':
+        return 'step_viewed';
+      case 'dismissed':
+        return 'dismissed';
+      case 'clicked':
+        return 'button_tap';
+      case 'submit':
+        return 'submit';
+      case 'gate_blocked':
+        return 'gate_blocked';
+      case 'error':
+        return 'error';
+      default:
+        return action;
+    }
   }
 
   Future<void> dispose() async {
     await _tokenRefreshSubscription?.cancel();
     await _authSubscription?.cancel();
+    await _messageController.close();
+    await _pushEventController.close();
   }
 }
 

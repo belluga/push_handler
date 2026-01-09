@@ -21,7 +21,7 @@ void main() {
       'payload': {
         'title': 'Hello',
         'body': 'Body',
-        'allowDismiss': true,
+        'closeOnLastStepAction': true,
         'layoutType': 'fullScreen',
         'backgroundColor': '#FFFFFF',
         'onClickLayoutType': 'fullScreen',
@@ -231,13 +231,65 @@ void main() {
     );
 
     final message = RemoteMessage.fromMap({
-      'data': {'push_message_id': 'msg-5'},
+      'data': {
+        'push_message_id': 'msg-5',
+        'message_instance_id': 'instance-1',
+      },
       'messageId': 'delivery-1',
     });
     await repository.handleMessageForTesting(message);
 
     expect(presenter.presented.length, 1);
     expect(queue.items, isEmpty);
+  });
+
+  testWidgets('dedupe prefers message_instance_id when available', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (ctx) {
+            context = ctx;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+
+    final queue = FakePushBackgroundDeliveryQueue();
+    final client = FakePushTransportClient(fetchResponse: buildPayload());
+    final presenter = FakePushMessagePresenter();
+
+    final repository = PushHandlerRepositoryDefault(
+      transportConfig: buildTransportConfig(),
+      contextProvider: () => context,
+      navigationResolver: null,
+      onBackgroundMessage: (_) async {},
+      transportClientOverride: client,
+      deliveryQueueOverride: queue,
+      presenterOverride: presenter,
+      enableFirebaseMessaging: false,
+    );
+
+    final first = RemoteMessage.fromMap({
+      'data': {
+        'push_message_id': 'msg-6',
+        'message_instance_id': 'instance-dup',
+      },
+      'messageId': 'delivery-1',
+    });
+    await repository.handleMessageForTesting(first);
+
+    final second = RemoteMessage.fromMap({
+      'data': {
+        'push_message_id': 'msg-7',
+        'message_instance_id': 'instance-dup',
+      },
+      'messageId': 'delivery-2',
+    });
+    await repository.handleMessageForTesting(second);
+
+    expect(presenter.presented.length, 1);
   });
 }
 

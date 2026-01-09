@@ -7,7 +7,7 @@ class MessageDataDTO {
   final String title;
   final String body;
   final ImageDataDTO? image;
-  final String allowDismiss;
+  final String closeOnLastStepAction;
   final String layoutType;
   final String? backgroundColor;
   final String? onClickLayoutType;
@@ -19,7 +19,7 @@ class MessageDataDTO {
     required this.title,
     required this.body,
     required this.image,
-    required this.allowDismiss,
+    required this.closeOnLastStepAction,
     required this.layoutType,
     required this.backgroundColor,
     required this.steps,
@@ -41,7 +41,8 @@ class MessageDataDTO {
       title: map["title"]?.toString() ?? '',
       body: map["body"]?.toString() ?? '',
       image: ImageDataDTO.tryFromMap(resolvedImageMap),
-      allowDismiss: map["allowDismiss"]?.toString() ?? 'false',
+      closeOnLastStepAction:
+          map["closeOnLastStepAction"]?.toString() ?? 'false',
       layoutType: map['layoutType']?.toString() ?? '',
       backgroundColor: map['backgroundColor']?.toString(),
       onClickLayoutType: map['onClickLayoutType']?.toString(),

@@ -7,12 +7,16 @@ class PushActionButtonsArea extends StatelessWidget {
   final List<ButtonData> buttonDataList;
   final PushWidgetController controller;
   final void Function(ButtonData button, int stepIndex)? onButtonPressed;
+  final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
+  final bool closeOnTap;
 
   const PushActionButtonsArea({
     super.key,
     required this.buttonDataList,
     required this.controller,
     this.onButtonPressed,
+    this.onCustomAction,
+    required this.closeOnTap,
   });
 
   @override
@@ -29,6 +33,8 @@ class PushActionButtonsArea extends StatelessWidget {
             controller: controller,
             buttonData: buttonDataList[index],
             onButtonPressed: onButtonPressed,
+            onCustomAction: onCustomAction,
+            closeOnTap: closeOnTap,
           ),
         ),
       ),

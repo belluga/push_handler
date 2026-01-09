@@ -1,12 +1,14 @@
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/domain/dto/button_data_dto.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_color_value.dart';
+import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_custom_action_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_itemkey_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_label_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_route_key_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_route_external_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_route_type_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_route_value.dart';
+import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_show_loading_value.dart';
 
 class ButtonData {
   final ButtonDataLabelValue label;
@@ -17,6 +19,8 @@ class ButtonData {
   final Map<String, String> pathParameters;
   final ButtonDataColorValue color;
   final ButtonDataItemKeyValue itemKey;
+  final ButtonDataCustomActionValue customAction;
+  final ButtonDataShowLoadingValue showLoading;
 
   ButtonData({
     required this.label,
@@ -27,6 +31,8 @@ class ButtonData {
     required this.pathParameters,
     required this.color,
     required this.itemKey,
+    required this.customAction,
+    required this.showLoading,
   });
 
   factory ButtonData.fromMap(Map<String, dynamic> map) =>
@@ -38,6 +44,10 @@ class ButtonData {
     final _routeInternal = ButtonDataRouteValue()..tryParse(dto.routeInternal);
     final _routeKey = ButtonDataRouteKeyValue()..tryParse(dto.routeKey);
     final _pathParameters = _normalizePathParameters(dto.pathParameters);
+    final _customAction =
+        ButtonDataCustomActionValue()..tryParse(dto.customAction);
+    final _showLoading =
+        ButtonDataShowLoadingValue()..parse(dto.showLoading);
 
     if ([
           ButtonRouteType.internalRoute,
@@ -64,6 +74,8 @@ class ButtonData {
       pathParameters: _pathParameters,
       color: ButtonDataColorValue()..tryParse(dto.color),
       itemKey: ButtonDataItemKeyValue()..tryParse(dto.itemKey),
+      customAction: _customAction,
+      showLoading: _showLoading,
     );
   }
 

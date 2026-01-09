@@ -6,11 +6,17 @@ import 'package:push_handler/src/presentation/push_popup/widgets/push_step_dialo
 class PushStepsTab extends StatelessWidget {
   final PushWidgetController controller;
   final void Function(ButtonData button, int stepIndex)? onButtonPressed;
+  final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
+  final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
+  final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
 
   const PushStepsTab({
     super.key,
     required this.controller,
     this.onButtonPressed,
+    this.onCustomAction,
+    this.optionsBuilder,
+    this.onStepSubmit,
   });
 
   @override
@@ -23,6 +29,9 @@ class PushStepsTab extends StatelessWidget {
         (index) => PushStepDialog(
           controller: controller,
           onButtonPressed: onButtonPressed,
+          onCustomAction: onCustomAction,
+          optionsBuilder: optionsBuilder,
+          onStepSubmit: onStepSubmit,
         ),
       ),
     );

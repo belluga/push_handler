@@ -6,11 +6,13 @@ class ButtonRouteNavigation {
   final PushWidgetController controller;
   final ButtonData buttonData;
   final BuildContext context;
+  final bool closeOnTap;
 
   ButtonRouteNavigation({
     required this.buttonData,
     required this.controller,
     required this.context,
+    required this.closeOnTap,
   });
 
   void navigate() {
@@ -31,6 +33,12 @@ class ButtonRouteNavigation {
 
       case ButtonRouteType.externalURL:
         navigateToExternal();
+        break;
+      case ButtonRouteType.customAction:
+        if (closeOnTap) {
+          controller.requestClose();
+          Navigator.of(context).maybePop();
+        }
         break;
     }
   }
@@ -70,7 +78,10 @@ class ButtonRouteNavigation {
       return;
     }
 
-    Navigator.of(context).maybePop();
+    if (closeOnTap) {
+      controller.requestClose();
+      Navigator.of(context).maybePop();
+    }
 
     resolver(
       PushRouteRequest(

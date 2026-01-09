@@ -10,6 +10,11 @@ class PushSnackBarContent extends PushWidget {
     super.navigationResolver,
     super.onStepChanged,
     super.onButtonPressed,
+    super.onCustomAction,
+    super.gatekeeper,
+    super.optionsBuilder,
+    super.onStepSubmit,
+    super.onGateBlocked,
   });
 
   @override
@@ -21,12 +26,9 @@ class _PushPopupState extends PushWidgetState {
   Widget build(BuildContext context) {
     final ImageData? _imageData = controller.messageData.image;
 
-    final TextStyle? _labelMedium =
-        Theme.of(context).textTheme.titleMedium;
-    final TextStyle? _bodySmall =
-        Theme.of(context).textTheme.bodySmall;
-    final Color _onPrimary =
-        Theme.of(context).colorScheme.onPrimary;
+    final TextStyle? _labelMedium = Theme.of(context).textTheme.titleMedium;
+    final TextStyle? _bodySmall = Theme.of(context).textTheme.bodySmall;
+    final Color _textColor = Theme.of(context).colorScheme.onSurface;
 
     return Row(
       children: [
@@ -48,7 +50,7 @@ class _PushPopupState extends PushWidgetState {
                 Text(
                   controller.messageData.title.value,
                   style: _labelMedium?.copyWith(
-                    color: _onPrimary,
+                    color: _textColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -57,7 +59,7 @@ class _PushPopupState extends PushWidgetState {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: _bodySmall?.copyWith(
-                    color: _onPrimary,
+                    color: _textColor,
                   ),
                 ),
               ],
@@ -68,7 +70,7 @@ class _PushPopupState extends PushWidgetState {
           onPressed: widget.onTapExpand,
           icon: Icon(
             Icons.open_in_full,
-            color: _onPrimary,
+            color: _textColor,
           ),
         )
       ],

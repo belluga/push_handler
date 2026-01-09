@@ -6,6 +6,8 @@ import 'package:push_handler/push_handler.dart';
 Future<void> pushHandlerBackgroundEntryPoint(RemoteMessage message) async {
   final receivedAt = DateTime.now().toUtc().toIso8601String();
   final pushMessageId = message.data['push_message_id']?.toString();
+  final messageInstanceId =
+      message.data['message_instance_id']?.toString() ?? message.messageId;
   if (pushMessageId == null || pushMessageId.isEmpty) return;
 
   final stored = await PushTransportStorage().load();
@@ -27,18 +29,18 @@ Future<void> pushHandlerBackgroundEntryPoint(RemoteMessage message) async {
     PushTransportRegistry.configure(config);
       try {
         final client = PushTransportClient(config);
-        log('[Push] Background delivery attempt for $pushMessageId.');
+  log('[Push] Background delivery attempt for $pushMessageId instance=${messageInstanceId ?? '-'}.');
         await client.reportAction(
           pushMessageId: pushMessageId,
           action: 'delivered',
           stepIndex: 0,
           deviceId: stored.deviceId,
-          messageId: message.messageId,
+          messageId: messageInstanceId,
           metadata: {
             'received_at': receivedAt,
           },
         );
-        log('[Push] Background delivery reported for $pushMessageId.');
+        log('[Push] Background delivery reported for $pushMessageId instance=${messageInstanceId ?? '-'}.');
         return;
       } catch (_) {
         // Fall through to queue on failure.
@@ -50,7 +52,8 @@ Future<void> pushHandlerBackgroundEntryPoint(RemoteMessage message) async {
     PushDeliveryQueueItem(
       pushMessageId: pushMessageId,
       receivedAtIso: receivedAt,
+      messageInstanceId: messageInstanceId,
     ),
   );
-  log('[Push] Background delivery queued for $pushMessageId.');
+  log('[Push] Background delivery queued for $pushMessageId instance=${messageInstanceId ?? '-'}.');
 }

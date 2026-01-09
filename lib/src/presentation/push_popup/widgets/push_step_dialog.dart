@@ -8,11 +8,17 @@ import 'package:push_handler/src/presentation/widgets/push_top_bar.dart';
 class PushStepDialog extends StatelessWidget {
   final PushWidgetController controller;
   final void Function(ButtonData button, int stepIndex)? onButtonPressed;
+  final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
+  final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
+  final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
 
   const PushStepDialog({
     super.key,
     required this.controller,
     this.onButtonPressed,
+    this.onCustomAction,
+    this.optionsBuilder,
+    this.onStepSubmit,
   });
 
   @override
@@ -29,10 +35,16 @@ class PushStepDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               PushTopBar(controller: controller),
-              PushStepContent(stepData: _stepData),
+              PushStepContent(
+                stepData: _stepData,
+                controller: controller,
+                optionsBuilder: optionsBuilder,
+                onStepSubmit: onStepSubmit,
+              ),
               PushBottomButtons(
                 controller: controller,
                 onButtonPressed: onButtonPressed,
+                onCustomAction: onCustomAction,
               ),
             ],
           ),

@@ -1,7 +1,7 @@
 import 'package:value_object_pattern/value_object.dart';
 
-class MessageDataAllowDismissValue extends ValueObject<bool> {
-  MessageDataAllowDismissValue({
+class MessageDataCloseOnLastStepActionValue extends ValueObject<bool> {
+  MessageDataCloseOnLastStepActionValue({
     super.defaultValue = true,
     super.isRequired = true,
   });

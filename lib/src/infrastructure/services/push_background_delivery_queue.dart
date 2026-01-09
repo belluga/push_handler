@@ -42,17 +42,20 @@ class PushDeliveryQueueItem {
   PushDeliveryQueueItem({
     required this.pushMessageId,
     required this.receivedAtIso,
+    this.messageInstanceId,
     this.deliveryReported = false,
   });
 
   final String pushMessageId;
   final String receivedAtIso;
+  final String? messageInstanceId;
   final bool deliveryReported;
 
   factory PushDeliveryQueueItem.fromMap(Map<String, dynamic> map) {
     return PushDeliveryQueueItem(
       pushMessageId: map['push_message_id']?.toString() ?? '',
       receivedAtIso: map['received_at']?.toString() ?? '',
+      messageInstanceId: map['message_instance_id']?.toString(),
       deliveryReported: map['delivery_reported'] == true,
     );
   }
@@ -60,6 +63,7 @@ class PushDeliveryQueueItem {
   Map<String, dynamic> toMap() => {
         'push_message_id': pushMessageId,
         'received_at': receivedAtIso,
+        'message_instance_id': messageInstanceId,
         'delivery_reported': deliveryReported,
       };
 }

@@ -9,6 +9,11 @@ class PushPopup extends PushWidget {
     super.navigationResolver,
     super.onStepChanged,
     super.onButtonPressed,
+    super.onCustomAction,
+    super.gatekeeper,
+    super.optionsBuilder,
+    super.onStepSubmit,
+    super.onGateBlocked,
   });
 
   @override
@@ -18,9 +23,23 @@ class PushPopup extends PushWidget {
 class _PushPopupState extends PushWidgetState {
   @override
   Widget build(BuildContext context) {
-    return PushStepsTab(
-      controller: controller,
-      onButtonPressed: widget.onButtonPressed,
+    if (!isReady) {
+      return const SizedBox.shrink();
+    }
+    return WillPopScope(
+      onWillPop: () async {
+        if (controller.currentIndexStreamValue.value > 0) {
+          await controller.toPrevious();
+        }
+        return false;
+      },
+      child: PushStepsTab(
+        controller: controller,
+        onButtonPressed: widget.onButtonPressed,
+        onCustomAction: widget.onCustomAction,
+        optionsBuilder: widget.optionsBuilder,
+        onStepSubmit: widget.onStepSubmit,
+      ),
     );
   }
 }

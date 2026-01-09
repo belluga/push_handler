@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
-import 'package:push_handler/src/presentation/widgets/push_dismiss_button.dart';
-
 class PushTopBar extends StatelessWidget {
   final PushWidgetController controller;
 
@@ -9,35 +7,26 @@ class PushTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool _allowDismiss = controller.messageData.allowDismiss.value;
-    final bool _haveBackButton = controller.currentIndexStreamValue.value > 0;
+    final bool isLastStep = controller.isLastStep;
+    final step = controller.currentStep;
+    final canSkip = !isLastStep && (step?.dismissible ?? false);
 
-    if (_allowDismiss == false && _haveBackButton == false) {
+    if (!canSkip) {
       return const SizedBox(height: 32);
     }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (_haveBackButton)
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  onPressed: controller.toPrevious,
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-              ],
-            ),
+        TextButton(
+          onPressed: () async {
+            await controller.skipCurrentStep();
+          },
+          child: Text(
+            'Pular',
+            style: Theme.of(context).textTheme.labelLarge,
           ),
-        if (_allowDismiss)
-          PushDismissButton(
-            useCloseIcon: controller.isLastTabStreamValue.value,
-          ),
+        ),
       ],
     );
   }
