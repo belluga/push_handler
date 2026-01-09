@@ -33,19 +33,6 @@ class PushBottomButtons extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (showBack)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              onPressed: () async {
-                await controller.toPrevious();
-              },
-              child: Text(
-                'voltar',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-            ),
-          ),
         if (hasStepButtons)
           PushActionButtonsArea(
             controller: controller,
@@ -80,6 +67,39 @@ class PushBottomButtons extends StatelessWidget {
                     }
                   : null,
               child: const Text('Continuar'),
+            ),
+          ),
+        if (showBack)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () async {
+                  await controller.toPrevious();
+                },
+                icon: Icon(
+                  Icons.chevron_left,
+                  size: 20,
+                  color: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.color,
+                ),
+                label: Text(
+                  'voltar',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  foregroundColor:
+                      Theme.of(context).textTheme.labelMedium?.color,
+                ),
+              ),
             ),
           ),
       ],

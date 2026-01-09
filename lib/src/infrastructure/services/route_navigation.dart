@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
-import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ButtonRouteNavigation {
   final PushWidgetController controller;
@@ -43,10 +44,21 @@ class ButtonRouteNavigation {
     }
   }
 
-  void navigateToExternal() {
-    _navigateWithResolver(
-      ButtonRouteType.externalURL,
-      route: buttonData.routeExternal.value?.toString() ?? '',
+  Future<void> navigateToExternal() async {
+    final rawUrl = buttonData.routeExternal.value?.toString() ?? '';
+    final uri = Uri.tryParse(rawUrl);
+    if (uri == null) {
+      return;
+    }
+
+    if (closeOnTap) {
+      controller.requestClose();
+      Navigator.of(context).maybePop();
+    }
+
+    await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
     );
   }
 
