@@ -90,6 +90,10 @@ class PushWidgetController {
   Future<void> refreshGate() async {
     final step = currentStep;
     if (step == null) return;
+    if (_shouldIgnoreGate(step)) {
+      canAdvanceStreamValue.addValue(true);
+      return;
+    }
     final gate = step.gate;
     if (gate == null) {
       canAdvanceStreamValue.addValue(true);
@@ -140,6 +144,9 @@ class PushWidgetController {
     StepData step, {
     required bool notifyOnFail,
   }) async {
+    if (_shouldIgnoreGate(step)) {
+      return true;
+    }
     final gate = step.gate;
     if (gate == null) {
       return true;
@@ -197,7 +204,7 @@ class PushWidgetController {
     var index = startIndex;
     while (index >= 0 && index < messageData.steps.length) {
       final step = messageData.steps[index];
-      final hasGate = step.gate != null;
+      final hasGate = step.gate != null && !_shouldIgnoreGate(step);
       if (!hasGate || gatekeeper == null) {
         return index;
       }
@@ -214,6 +221,17 @@ class PushWidgetController {
       return 0;
     }
     return messageData.steps.length - 1;
+  }
+
+  bool _shouldIgnoreGate(StepData step) {
+    final gate = step.gate;
+    if (gate == null) return false;
+    final selectionUi = step.config?.selectionUi;
+    if (step.type != 'selector' || selectionUi != 'inline') {
+      return false;
+    }
+    final minSelected = step.config?.minSelected ?? 0;
+    return minSelected > 0;
   }
 
   void dispose() {

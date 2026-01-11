@@ -14,6 +14,7 @@ abstract class PushWidget extends StatefulWidget {
   final Future<bool> Function(StepData step)? gatekeeper;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
   final void Function(StepData step)? onGateBlocked;
 
   const PushWidget(
@@ -27,6 +28,7 @@ abstract class PushWidget extends StatefulWidget {
       this.gatekeeper,
       this.optionsBuilder,
       this.onStepSubmit,
+      this.stepValidator,
       this.onGateBlocked});
 
   @override

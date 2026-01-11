@@ -4,6 +4,7 @@ import 'package:push_handler/src/domain/push_data_models/image_data/image_data.d
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 import 'package:push_handler/src/presentation/widgets/push_step_body.dart';
 import 'package:push_handler/src/presentation/widgets/push_step_question_content.dart';
+import 'package:push_handler/src/presentation/widgets/push_step_selector_content.dart';
 
 class PushStepContent extends StatelessWidget {
   final EdgeInsets? padding;
@@ -11,6 +12,7 @@ class PushStepContent extends StatelessWidget {
   final PushWidgetController? controller;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
 
   const PushStepContent({
     super.key,
@@ -19,6 +21,7 @@ class PushStepContent extends StatelessWidget {
     this.controller,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
   });
 
   @override
@@ -79,12 +82,21 @@ class PushStepContent extends StatelessWidget {
               ],
             ),
           if (isQuestion && controller != null) const SizedBox(height: 24),
-          if (isQuestion && controller != null)
-            PushStepQuestionContent(
+    if (isQuestion && controller != null)
+      stepData.type == 'selector'
+          ? PushStepSelectorContent(
               stepData: stepData,
               controller: controller!,
               optionsBuilder: optionsBuilder,
               onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
+            )
+          : PushStepQuestionContent(
+              stepData: stepData,
+              controller: controller!,
+              optionsBuilder: optionsBuilder,
+              onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
             ),
         ],
       ),

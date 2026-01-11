@@ -106,7 +106,7 @@ class _PushActionButtonState extends State<PushActionButton> {
       if (step == null) {
         return;
       }
-      if (customAction.isEmpty || customAction == 'noop') {
+      if (customAction.isEmpty) {
         if (widget.closeOnTap) {
           widget.controller.requestClose();
           Navigator.of(context).maybePop();
@@ -116,7 +116,11 @@ class _PushActionButtonState extends State<PushActionButton> {
         return;
       }
       await widget.onCustomAction?.call(widget.buttonData, step);
-      await widget.controller.advanceAfterGateAction();
+      if (step.gate != null) {
+        await widget.controller.advanceAfterGateAction();
+      } else if (widget.buttonData.continueAfterAction.value) {
+        await widget.controller.advanceAfterGateAction();
+      }
       if (widget.closeOnTap) {
         widget.controller.requestClose();
         Navigator.of(context).maybePop();

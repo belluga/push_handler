@@ -1,3 +1,8 @@
+## Unreleased
+
+- Add `continue_after_action` to custom buttons to opt into auto-advance after the action.
+- Remove special handling for `noop` custom actions.
+
 ## 0.2.0
 
 - Add slug-based step schema with per-step buttons, dismissible steps, and closeOnLastStepAction.

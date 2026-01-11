@@ -9,6 +9,7 @@ class ButtonDataDTO {
   final String? itemKey;
   final String? customAction;
   final String? showLoading;
+  final String? continueAfterAction;
 
   ButtonDataDTO({
     required this.label,
@@ -21,6 +22,7 @@ class ButtonDataDTO {
     this.itemKey,
     this.customAction,
     this.showLoading,
+    this.continueAfterAction,
   });
 
   factory ButtonDataDTO.fromMap(Map<String, dynamic> map) {
@@ -30,6 +32,9 @@ class ButtonDataDTO {
     final rawType = actionMap['type'] ?? map['routeType'];
     final normalizedType = _normalizeRouteType(rawType);
     final customAction = actionMap['custom_action']?.toString();
+    final continueAfterAction = (actionMap['continue_after_action'] ??
+            map['continue_after_action'])
+        ?.toString();
     final resolvedType = normalizedType.isEmpty && customAction != null
         ? _normalizeRouteType('custom')
         : normalizedType;
@@ -46,6 +51,7 @@ class ButtonDataDTO {
       itemKey: map['itemKey'],
       customAction: customAction,
       showLoading: map['show_loading']?.toString(),
+      continueAfterAction: continueAfterAction,
     );
   }
 

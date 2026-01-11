@@ -10,6 +10,12 @@ class StepConfig {
 
   String? get layout => raw['layout']?.toString();
 
+  String? get selectionUi => raw['selection_ui']?.toString();
+
+  String? get selectionMode => raw['selection_mode']?.toString();
+
+  dynamic get validator => raw['validator'];
+
   int? get gridColumns {
     final value = raw['grid_columns'];
     if (value is int) return value;

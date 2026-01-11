@@ -14,6 +14,7 @@ class PushModalBottomSheetContent extends PushWidget {
     super.gatekeeper,
     super.optionsBuilder,
     super.onStepSubmit,
+    super.stepValidator,
     super.onGateBlocked,
   });
 

@@ -154,6 +154,7 @@ configs. Body supports Markdown or HTML (images included).
       "buttons": [
         {
           "label": "Enable",
+          "continue_after_action": true,
           "action": {
             "type": "custom",
             "custom_action": "request_notifications"
@@ -184,6 +185,10 @@ configs. Body supports Markdown or HTML (images included).
   "buttons": []
 }
 ```
+
+Custom actions default to replacing the continue behavior. Set
+`continue_after_action: true` on a button to run the custom action and then
+auto-advance (with gate recheck).
 
 ### Hooks for app integration
 

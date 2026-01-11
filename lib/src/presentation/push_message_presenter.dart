@@ -17,6 +17,7 @@ class PushMessagePresenter {
     this.gatekeeper,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
     this.onCustomAction,
   })  : _contextProvider = contextProvider,
         _navigationResolver = navigationResolver;
@@ -26,6 +27,7 @@ class PushMessagePresenter {
   final Future<bool> Function(StepData step)? gatekeeper;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
   final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
 
   Future<void> present({
@@ -104,6 +106,7 @@ class PushMessagePresenter {
             gatekeeper: gatekeeper,
             optionsBuilder: optionsBuilder,
             onStepSubmit: onStepSubmit == null ? null : handleStepSubmit,
+            stepValidator: stepValidator,
             onGateBlocked: handleGateBlocked,
           ),
           messageData: messageData,
@@ -123,6 +126,7 @@ class PushMessagePresenter {
             gatekeeper: gatekeeper,
             optionsBuilder: optionsBuilder,
             onStepSubmit: onStepSubmit == null ? null : handleStepSubmit,
+            stepValidator: stepValidator,
             onGateBlocked: handleGateBlocked,
           ),
           messageData: messageData,
@@ -144,6 +148,7 @@ class PushMessagePresenter {
           gatekeeper: gatekeeper,
           optionsBuilder: optionsBuilder,
           onStepSubmit: onStepSubmit == null ? null : handleStepSubmit,
+          stepValidator: stepValidator,
           onGateBlocked: handleGateBlocked,
         );
         return;
@@ -161,6 +166,7 @@ class PushMessagePresenter {
           gatekeeper: gatekeeper,
           optionsBuilder: optionsBuilder,
           onStepSubmit: onStepSubmit == null ? null : handleStepSubmit,
+          stepValidator: stepValidator,
           onGateBlocked: handleGateBlocked,
         );
         return;
@@ -225,6 +231,7 @@ class PushMessagePresenter {
     Future<bool> Function(StepData step)? gatekeeper,
     Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder,
     Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit,
+    String? Function(StepData step, String? value)? stepValidator,
     void Function(StepData step)? onGateBlocked,
   }) async {
     final context = _contextProvider?.call();
@@ -244,6 +251,7 @@ class PushMessagePresenter {
             gatekeeper: gatekeeper,
             optionsBuilder: optionsBuilder,
             onStepSubmit: onStepSubmit,
+            stepValidator: stepValidator,
             onGateBlocked: onGateBlocked,
           ),
           messageData: messageData,
@@ -260,19 +268,21 @@ class PushMessagePresenter {
           gatekeeper: gatekeeper,
           optionsBuilder: optionsBuilder,
           onStepSubmit: onStepSubmit,
+          stepValidator: stepValidator,
           onGateBlocked: onGateBlocked,
           onTapExpand: () => _showGeneralDialog(
             builder: (context) => PushScreenFull(
-            messageData: messageData,
-            navigationResolver: navigationResolver,
-            onStepChanged: onStepChanged,
-            onButtonPressed: onButtonPressed,
-            onCustomAction: onCustomAction,
-            gatekeeper: gatekeeper,
-            optionsBuilder: optionsBuilder,
-            onStepSubmit: onStepSubmit,
-            onGateBlocked: onGateBlocked,
-          ),
+              messageData: messageData,
+              navigationResolver: navigationResolver,
+              onStepChanged: onStepChanged,
+              onButtonPressed: onButtonPressed,
+              onCustomAction: onCustomAction,
+              gatekeeper: gatekeeper,
+              optionsBuilder: optionsBuilder,
+              onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
+              onGateBlocked: onGateBlocked,
+            ),
             messageData: messageData,
             reportAction: reportAction,
             deviceId: deviceId,
@@ -303,6 +313,7 @@ class PushMessagePresenter {
     Future<bool> Function(StepData step)? gatekeeper,
     Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder,
     Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit,
+    String? Function(StepData step, String? value)? stepValidator,
     void Function(StepData step)? onGateBlocked,
   }) async {
     final context = _contextProvider?.call();
@@ -326,6 +337,7 @@ class PushMessagePresenter {
               gatekeeper: gatekeeper,
               optionsBuilder: optionsBuilder,
               onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
               onGateBlocked: onGateBlocked,
             ),
             messageData: messageData,
@@ -342,18 +354,20 @@ class PushMessagePresenter {
           gatekeeper: gatekeeper,
           optionsBuilder: optionsBuilder,
           onStepSubmit: onStepSubmit,
+          stepValidator: stepValidator,
           onGateBlocked: onGateBlocked,
           onTapExpand: () => _showGeneralDialog(
             builder: (context) => PushScreenFull(
-            messageData: messageData,
-            navigationResolver: navigationResolver,
-            onStepChanged: onStepChanged,
-            onButtonPressed: onButtonPressed,
-            onCustomAction: onCustomAction,
-            gatekeeper: gatekeeper,
-            optionsBuilder: optionsBuilder,
-            onStepSubmit: onStepSubmit,
-            onGateBlocked: onGateBlocked,
+              messageData: messageData,
+              navigationResolver: navigationResolver,
+              onStepChanged: onStepChanged,
+              onButtonPressed: onButtonPressed,
+              onCustomAction: onCustomAction,
+              gatekeeper: gatekeeper,
+              optionsBuilder: optionsBuilder,
+              onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
+              onGateBlocked: onGateBlocked,
             ),
               messageData: messageData,
               reportAction: reportAction,

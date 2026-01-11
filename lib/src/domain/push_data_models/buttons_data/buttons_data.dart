@@ -1,6 +1,7 @@
 import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/domain/dto/button_data_dto.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_color_value.dart';
+import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_continue_after_action_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_custom_action_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_itemkey_value.dart';
 import 'package:push_handler/src/domain/push_data_models/buttons_data/value_objects/button_data_label_value.dart';
@@ -21,6 +22,7 @@ class ButtonData {
   final ButtonDataItemKeyValue itemKey;
   final ButtonDataCustomActionValue customAction;
   final ButtonDataShowLoadingValue showLoading;
+  final ButtonDataContinueAfterActionValue continueAfterAction;
 
   ButtonData({
     required this.label,
@@ -33,6 +35,7 @@ class ButtonData {
     required this.itemKey,
     required this.customAction,
     required this.showLoading,
+    required this.continueAfterAction,
   });
 
   factory ButtonData.fromMap(Map<String, dynamic> map) =>
@@ -48,6 +51,9 @@ class ButtonData {
         ButtonDataCustomActionValue()..tryParse(dto.customAction);
     final _showLoading =
         ButtonDataShowLoadingValue()..parse(dto.showLoading);
+    final _continueAfterAction =
+        ButtonDataContinueAfterActionValue()
+          ..parse(dto.continueAfterAction);
 
     if ([
           ButtonRouteType.internalRoute,
@@ -76,6 +82,7 @@ class ButtonData {
       itemKey: ButtonDataItemKeyValue()..tryParse(dto.itemKey),
       customAction: _customAction,
       showLoading: _showLoading,
+      continueAfterAction: _continueAfterAction,
     );
   }
 

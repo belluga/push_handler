@@ -9,6 +9,7 @@ class PushStepsTab extends StatelessWidget {
   final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
 
   const PushStepsTab({
     super.key,
@@ -17,6 +18,7 @@ class PushStepsTab extends StatelessWidget {
     this.onCustomAction,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
   });
 
   @override
@@ -32,6 +34,7 @@ class PushStepsTab extends StatelessWidget {
           onCustomAction: onCustomAction,
           optionsBuilder: optionsBuilder,
           onStepSubmit: onStepSubmit,
+          stepValidator: stepValidator,
         ),
       ),
     );

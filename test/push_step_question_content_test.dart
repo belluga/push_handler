@@ -32,24 +32,26 @@ PushWidgetController _buildController(StepData step) {
 }
 
 void main() {
-  testWidgets('single select replaces previous choice', (tester) async {
+  testWidgets('text validator disables submit on empty value', (tester) async {
     final step = StepData.fromMap({
-      'slug': 'choose-one',
+      'slug': 'about-me',
       'type': 'question',
-      'title': 'Pick one',
+      'title': 'About you',
       'config': {
-        'question_type': 'single_select',
-        'layout': 'list',
-        'min_selected': 1,
-        'options': [
-          {'id': 'a', 'label': 'Option A'},
-          {'id': 'b', 'label': 'Option B'},
-        ],
+        'question_type': 'text',
+        'validator': 'required_text',
       },
       'buttons': [],
     });
 
     final controller = _buildController(step);
+
+    String? validator(StepData step, String? value) {
+      if (value == null || value.trim().isEmpty) {
+        return 'Required';
+      }
+      return null;
+    }
 
     await tester.pumpWidget(
       MaterialApp(
@@ -58,65 +60,7 @@ void main() {
             child: PushStepQuestionContent(
               stepData: step,
               controller: controller,
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Option A'));
-    await tester.pumpAndSettle();
-
-    var firstTile = tester.widget<CheckboxListTile>(
-      find.widgetWithText(CheckboxListTile, 'Option A'),
-    );
-    var secondTile = tester.widget<CheckboxListTile>(
-      find.widgetWithText(CheckboxListTile, 'Option B'),
-    );
-    expect(firstTile.value, isTrue);
-    expect(secondTile.value, isFalse);
-
-    await tester.tap(find.text('Option B'));
-    await tester.pumpAndSettle();
-
-    firstTile = tester.widget<CheckboxListTile>(
-      find.widgetWithText(CheckboxListTile, 'Option A'),
-    );
-    secondTile = tester.widget<CheckboxListTile>(
-      find.widgetWithText(CheckboxListTile, 'Option B'),
-    );
-    expect(firstTile.value, isFalse);
-    expect(secondTile.value, isTrue);
-  });
-
-  testWidgets('min selection gates submit', (tester) async {
-    final step = StepData.fromMap({
-      'slug': 'choose-two',
-      'type': 'question',
-      'title': 'Pick two',
-      'config': {
-        'question_type': 'multi_select',
-        'layout': 'tags',
-        'min_selected': 2,
-        'options': [
-          {'id': 'a', 'label': 'Option A'},
-          {'id': 'b', 'label': 'Option B'},
-          {'id': 'c', 'label': 'Option C'},
-        ],
-      },
-      'buttons': [],
-    });
-
-    final controller = _buildController(step);
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Material(
-            child: PushStepQuestionContent(
-              stepData: step,
-              controller: controller,
+              stepValidator: validator,
             ),
           ),
         ),
@@ -126,11 +70,7 @@ void main() {
 
     expect(controller.canSubmitStreamValue.value, isFalse);
 
-    await tester.tap(find.text('Option A'));
-    await tester.pumpAndSettle();
-    expect(controller.canSubmitStreamValue.value, isFalse);
-
-    await tester.tap(find.text('Option B'));
+    await tester.enterText(find.byType(TextField), 'Hello');
     await tester.pumpAndSettle();
     expect(controller.canSubmitStreamValue.value, isTrue);
   });

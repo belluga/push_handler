@@ -11,6 +11,7 @@ class PushStepDialog extends StatelessWidget {
   final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
 
   const PushStepDialog({
     super.key,
@@ -19,6 +20,7 @@ class PushStepDialog extends StatelessWidget {
     this.onCustomAction,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
   });
 
   @override
@@ -40,6 +42,7 @@ class PushStepDialog extends StatelessWidget {
                 controller: controller,
                 optionsBuilder: optionsBuilder,
                 onStepSubmit: onStepSubmit,
+                stepValidator: stepValidator,
               ),
               PushBottomButtons(
                 controller: controller,

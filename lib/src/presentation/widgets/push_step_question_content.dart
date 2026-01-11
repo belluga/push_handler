@@ -9,12 +9,14 @@ class PushStepQuestionContent extends StatefulWidget {
     required this.controller,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
   });
 
   final StepData stepData;
   final PushWidgetController controller;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
 
   @override
   State<PushStepQuestionContent> createState() =>
@@ -71,14 +73,34 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
   bool _isSelectionValid() {
     final config = widget.stepData.config;
     if (config == null) return true;
-    final min = config.minSelected ?? 0;
-    final max = config.maxSelected;
-    if (config.questionType == 'text') {
-      if (min <= 0) return true;
-      return _textController.text.trim().isNotEmpty;
+    final questionType = config.questionType;
+    final isSelector = widget.stepData.type == 'selector';
+    final isInlineSelector = isSelector && config.selectionUi == 'inline';
+    final shouldValidateSelection = !isSelector || isInlineSelector;
+    if (questionType == 'text') {
+      if (config.validator != null && widget.stepValidator != null) {
+        final error =
+            widget.stepValidator!(widget.stepData, _textController.text);
+        return error == null;
+      }
+      return true;
     }
-    if (max != null && _selectedValues.length > max) return false;
-    if (_selectedValues.length < min) return false;
+    if (widget.stepData.type == 'question') {
+      return true;
+    }
+    if (!shouldValidateSelection) return true;
+    if (isSelector) {
+      final selectionMode = config.selectionMode ?? 'single';
+      if (selectionMode == 'multi') {
+        final min = config.minSelected ?? 0;
+        final max = config.maxSelected;
+        final shouldEnforceMax = max != null && max > 0;
+        if (shouldEnforceMax && _selectedValues.length > max) return false;
+        if (_selectedValues.length < min) return false;
+        return true;
+      }
+      return _selectedValues.length == 1;
+    }
     return true;
   }
 
@@ -131,6 +153,15 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
           border: OutlineInputBorder(),
         ),
       );
+    }
+
+    if (widget.stepData.type == 'question') {
+      return const SizedBox.shrink();
+    }
+
+    if (widget.stepData.type == 'selector' &&
+        config?.selectionUi == 'external') {
+      return const SizedBox.shrink();
     }
 
     if (_loading) {
@@ -226,22 +257,29 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
 
   void _toggleOption(OptionItem option) {
     final config = widget.stepData.config;
-    final maxSelected = config?.maxSelected;
-    final questionType = config?.questionType;
-    final isSingleSelect = questionType == 'single_select';
-    final isMultiSelect = questionType == 'multi_select' || !isSingleSelect;
+    if (config == null || widget.stepData.type != 'selector') {
+      return;
+    }
+    final selectionMode = config.selectionMode ?? 'single';
+    final maxSelected = config.maxSelected;
+    final shouldEnforceMax = maxSelected != null && maxSelected > 0;
     setState(() {
-      if (_selectedValues.contains(option.value)) {
-        _selectedValues.remove(option.value);
-        return;
-      }
-      if (isSingleSelect) {
+      final isSelected = _selectedValues.contains(option.value);
+      if (selectionMode == 'single') {
+        if (isSelected) {
+          _selectedValues.remove(option.value);
+          return;
+        }
         _selectedValues
           ..clear()
           ..add(option.value);
         return;
       }
-      if (maxSelected != null && _selectedValues.length >= maxSelected && isMultiSelect) {
+      if (!isSelected && shouldEnforceMax && _selectedValues.length >= maxSelected) {
+        return;
+      }
+      if (isSelected) {
+        _selectedValues.remove(option.value);
         return;
       }
       _selectedValues.add(option.value);

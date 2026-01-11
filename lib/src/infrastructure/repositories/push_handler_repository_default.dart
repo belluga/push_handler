@@ -10,6 +10,7 @@ class PushHandlerRepositoryDefault extends PushHandlerRepositoryContract {
     super.gatekeeper,
     super.optionsBuilder,
     super.onStepSubmit,
+    super.stepValidator,
     super.onCustomAction,
     super.transportClientOverride,
     super.presenterOverride,

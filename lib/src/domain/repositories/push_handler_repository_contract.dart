@@ -14,6 +14,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
     this.gatekeeper,
     this.optionsBuilder,
     this.onStepSubmit,
+    this.stepValidator,
     this.onCustomAction,
     PushTransportClient? transportClientOverride,
     PushMessagePresenter? presenterOverride,
@@ -33,6 +34,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
               gatekeeper: gatekeeper,
               optionsBuilder: optionsBuilder,
               onStepSubmit: onStepSubmit,
+              stepValidator: stepValidator,
               onCustomAction: onCustomAction,
             );
 
@@ -44,6 +46,7 @@ abstract class PushHandlerRepositoryContract with WidgetsBindingObserver {
   final Future<bool> Function(StepData step)? gatekeeper;
   final Future<List<OptionItem>> Function(OptionSource source)? optionsBuilder;
   final Future<void> Function(AnswerPayload answer, StepData step)? onStepSubmit;
+  final String? Function(StepData step, String? value)? stepValidator;
   final Future<void> Function(ButtonData button, StepData step)? onCustomAction;
   final void Function(PushEvent event)? onPushEvent;
   final Stream<dynamic>? authChangeStream;

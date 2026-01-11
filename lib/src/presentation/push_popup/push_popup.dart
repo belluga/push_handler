@@ -13,6 +13,7 @@ class PushPopup extends PushWidget {
     super.gatekeeper,
     super.optionsBuilder,
     super.onStepSubmit,
+    super.stepValidator,
     super.onGateBlocked,
   });
 
@@ -39,6 +40,7 @@ class _PushPopupState extends PushWidgetState {
         onCustomAction: widget.onCustomAction,
         optionsBuilder: widget.optionsBuilder,
         onStepSubmit: widget.onStepSubmit,
+        stepValidator: widget.stepValidator,
       ),
     );
   }

@@ -15,6 +15,7 @@ class PushScreenFull extends PushWidget {
       super.gatekeeper,
       super.optionsBuilder,
       super.onStepSubmit,
+      super.stepValidator,
       super.onGateBlocked});
 
   @override
@@ -52,6 +53,7 @@ class _PushPopupState extends PushWidgetState {
                     controller: controller,
                     optionsBuilder: widget.optionsBuilder,
                     onStepSubmit: widget.onStepSubmit,
+                    stepValidator: widget.stepValidator,
                   ),
                 ),
                 PushBottomButtons(
