@@ -9,7 +9,7 @@ MessageData _buildMessageData({required bool withGate}) {
     'title': 'Title',
     'body': 'Body',
     'layoutType': 'fullScreen',
-    'closeOnLastStepAction': false,
+    'closeBehavior': 'close_button',
     'steps': [
       {
         'slug': 'step-1',
@@ -69,7 +69,7 @@ void main() {
           body: PushActionButton(
             buttonData: button,
             controller: controller,
-            onCustomAction: (_, __) async {
+            onCustomAction: (button, step) async {
               invoked = true;
             },
             closeOnTap: false,
@@ -99,7 +99,7 @@ void main() {
           body: PushActionButton(
             buttonData: button,
             controller: controller,
-            onCustomAction: (_, __) async {
+            onCustomAction: (button, step) async {
               invoked = true;
             },
             closeOnTap: false,
@@ -128,7 +128,7 @@ void main() {
           body: PushActionButton(
             buttonData: button,
             controller: controller,
-            onCustomAction: (_, __) async {
+            onCustomAction: (button, step) async {
               invoked = true;
             },
             closeOnTap: false,

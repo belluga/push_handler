@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:push_handler/src/presentation/push_widget.dart';
 import 'package:push_handler/src/presentation/widgets/push_bottom_buttons.dart';
@@ -28,40 +30,54 @@ class _PushPopupState extends PushWidgetState {
     if (!isReady) {
       return const SizedBox.shrink();
     }
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
         if (controller.consumeCloseRequest()) {
-          return true;
+          unawaited(Navigator.of(context).maybePop());
+          return;
+        }
+        if (controller.consumeBackSuppression()) {
+          return;
         }
         if (controller.currentIndexStreamValue.value > 0) {
-          await controller.toPrevious();
+          unawaited(controller.toPrevious());
         }
-        return false;
       },
       child: Material(
         child: Container(
           color: controller.resolveBackgroundColor(context),
-          child: SafeArea(
-            child: Column(
-              children: [
-                PushTopBar(controller: controller),
-                Expanded(
-                  child: PushStepContent(
-                    padding: const EdgeInsets.all(64),
-                    stepData: controller.messageData
-                        .steps[controller.currentIndexStreamValue.value],
-                    controller: controller,
-                    optionsBuilder: widget.optionsBuilder,
-                    onStepSubmit: widget.onStepSubmit,
-                    stepValidator: widget.stepValidator,
+          child: AnimatedPadding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  PushTopBar(controller: controller),
+                  Expanded(
+                    child: PushStepContent(
+                      padding: const EdgeInsets.all(64),
+                      stepData: controller.messageData
+                          .steps[controller.currentIndexStreamValue.value],
+                      controller: controller,
+                      optionsBuilder: widget.optionsBuilder,
+                      onStepSubmit: widget.onStepSubmit,
+                      stepValidator: widget.stepValidator,
+                    ),
                   ),
-                ),
-                PushBottomButtons(
-                  controller: controller,
-                  onButtonPressed: widget.onButtonPressed,
-                  onCustomAction: widget.onCustomAction,
-                ),
-              ],
+                  PushBottomButtons(
+                    controller: controller,
+                    onButtonPressed: widget.onButtonPressed,
+                    onCustomAction: widget.onCustomAction,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

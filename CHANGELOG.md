@@ -2,6 +2,9 @@
 
 - Add `continue_after_action` to custom buttons to opt into auto-advance after the action.
 - Remove special handling for `noop` custom actions.
+- Add `OptionItem.isSelected` to allow preselected inline options.
+- Clarify that answer persistence lives in app callbacks (no plugin storage).
+- Replace `closeOnLastStepAction` with `closeBehavior` (`after_action`, `close_button`) and add last-step close button support.
 
 ## 0.2.0
 

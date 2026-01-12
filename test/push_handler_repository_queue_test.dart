@@ -21,7 +21,7 @@ void main() {
       'payload': {
         'title': 'Hello',
         'body': 'Body',
-        'closeOnLastStepAction': true,
+        'closeBehavior': 'after_action',
         'layoutType': 'fullScreen',
         'backgroundColor': '#FFFFFF',
         'onClickLayoutType': 'fullScreen',

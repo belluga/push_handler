@@ -14,6 +14,7 @@ class PushWidgetController {
   final canAdvanceStreamValue = StreamValue<bool>(defaultValue: true);
   final canSubmitStreamValue = StreamValue<bool>(defaultValue: true);
   bool _allowCloseOnce = false;
+  bool _suppressBackOnce = false;
   Future<void> Function()? _primaryAction;
 
   PushWidgetController({
@@ -52,6 +53,7 @@ class PushWidgetController {
 
   void requestClose() {
     _allowCloseOnce = true;
+    _suppressBackOnce = true;
   }
 
   bool consumeCloseRequest() {
@@ -59,6 +61,14 @@ class PushWidgetController {
       return false;
     }
     _allowCloseOnce = false;
+    return true;
+  }
+
+  bool consumeBackSuppression() {
+    if (!_suppressBackOnce) {
+      return false;
+    }
+    _suppressBackOnce = false;
     return true;
   }
 

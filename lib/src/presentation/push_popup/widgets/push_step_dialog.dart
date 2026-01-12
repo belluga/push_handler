@@ -28,30 +28,37 @@ class PushStepDialog extends StatelessWidget {
     final StepData _stepData =
         controller.messageData.steps[controller.currentIndexStreamValue.value];
 
-    return Dialog(
-      backgroundColor: controller.resolveBackgroundColor(context),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PushTopBar(controller: controller),
-              PushStepContent(
-                stepData: _stepData,
-                controller: controller,
-                optionsBuilder: optionsBuilder,
-                onStepSubmit: onStepSubmit,
-                stepValidator: stepValidator,
-              ),
-              PushBottomButtons(
-                controller: controller,
-                onButtonPressed: onButtonPressed,
-                onCustomAction: onCustomAction,
-              ),
-            ],
-          ),
-        ],
+    return AnimatedPadding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      child: Dialog(
+        backgroundColor: controller.resolveBackgroundColor(context),
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PushTopBar(controller: controller),
+                PushStepContent(
+                  stepData: _stepData,
+                  controller: controller,
+                  optionsBuilder: optionsBuilder,
+                  onStepSubmit: onStepSubmit,
+                  stepValidator: stepValidator,
+                ),
+                PushBottomButtons(
+                  controller: controller,
+                  onButtonPressed: onButtonPressed,
+                  onCustomAction: onCustomAction,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

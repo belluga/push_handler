@@ -30,76 +30,89 @@ class PushStepContent extends StatelessWidget {
     final isQuestion = stepData.type == 'question' || stepData.type == 'selector';
     final theme = Theme.of(context);
     final textColor = theme.colorScheme.onSurface;
+    final hasTitle = stepData.title.value.isNotEmpty;
+    final hasBody = stepData.body.value.isNotEmpty;
 
-    return Padding(
-      padding: padding ?? const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (_imageData != null)
-            Container(
-              width: _imageData.widthValue.value,
-              height: _imageData.heightValue.value,
-              margin: const EdgeInsets.all(8),
-              child: Image.network(
-                _imageData.pathValue.value.toString(),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: theme.colorScheme.primary,
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-              ),
-            ),
-          if (_imageData != null) const SizedBox(height: 32),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  stepData.title.value,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(color: textColor),
-                ),
-              ),
-            ],
-          ),
-          if (stepData.body.value.isNotEmpty) const SizedBox(height: 16),
-          if (stepData.body.value.isNotEmpty)
-            Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minHeight =
+            constraints.hasBoundedHeight ? constraints.maxHeight : 0.0;
+        return SingleChildScrollView(
+          padding: padding ?? const EdgeInsets.all(32),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: PushStepBody(
-                    body: stepData.body.value,
-                    textColor: textColor,
+                if (_imageData != null)
+                  Container(
+                    width: _imageData.widthValue.value,
+                    height: _imageData.heightValue.value,
+                    margin: const EdgeInsets.all(8),
+                    child: Image.network(
+                      _imageData.pathValue.value.toString(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: theme.colorScheme.primary,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
+                if (_imageData != null) const SizedBox(height: 32),
+                if (hasTitle)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          stepData.title.value,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleLarge
+                              ?.copyWith(color: textColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (hasTitle && hasBody) const SizedBox(height: 16),
+                if (hasBody)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PushStepBody(
+                          body: stepData.body.value,
+                          textColor: textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (isQuestion && controller != null) const SizedBox(height: 24),
+                if (isQuestion && controller != null)
+                  stepData.type == 'selector'
+                      ? PushStepSelectorContent(
+                          stepData: stepData,
+                          controller: controller!,
+                          optionsBuilder: optionsBuilder,
+                          onStepSubmit: onStepSubmit,
+                          stepValidator: stepValidator,
+                        )
+                      : PushStepQuestionContent(
+                          stepData: stepData,
+                          controller: controller!,
+                          optionsBuilder: optionsBuilder,
+                          onStepSubmit: onStepSubmit,
+                          stepValidator: stepValidator,
+                        ),
               ],
             ),
-          if (isQuestion && controller != null) const SizedBox(height: 24),
-    if (isQuestion && controller != null)
-      stepData.type == 'selector'
-          ? PushStepSelectorContent(
-              stepData: stepData,
-              controller: controller!,
-              optionsBuilder: optionsBuilder,
-              onStepSubmit: onStepSubmit,
-              stepValidator: stepValidator,
-            )
-          : PushStepQuestionContent(
-              stepData: stepData,
-              controller: controller!,
-              optionsBuilder: optionsBuilder,
-              onStepSubmit: onStepSubmit,
-              stepValidator: stepValidator,
-            ),
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }

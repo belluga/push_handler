@@ -9,7 +9,7 @@ MessageData _buildMessageData(StepData step) {
     'title': 'Title',
     'body': 'Body',
     'layoutType': 'fullScreen',
-    'closeOnLastStepAction': true,
+    'closeBehavior': 'after_action',
     'steps': [
       {
         'slug': step.slug,
@@ -179,5 +179,50 @@ void main() {
 
     expect(find.text('Option A'), findsNothing);
     expect(find.text('Option B'), findsNothing);
+  });
+
+  testWidgets('inline selector honors pre-selected options', (tester) async {
+    final step = StepData.fromMap({
+      'slug': 'select-pre',
+      'type': 'selector',
+      'title': 'Pick pre',
+      'config': {
+        'selection_ui': 'inline',
+        'selection_mode': 'single',
+        'layout': 'list',
+        'options': [
+          {'id': 'a', 'label': 'Option A'},
+          {'id': 'b', 'label': 'Option B', 'is_selected': true},
+        ],
+      },
+      'buttons': [],
+    });
+
+    final controller = _buildController(step);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Material(
+            child: PushStepSelectorContent(
+              stepData: step,
+              controller: controller,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final firstTile = tester.widget<CheckboxListTile>(
+      find.widgetWithText(CheckboxListTile, 'Option A'),
+    );
+    final secondTile = tester.widget<CheckboxListTile>(
+      find.widgetWithText(CheckboxListTile, 'Option B'),
+    );
+
+    expect(firstTile.value, isFalse);
+    expect(secondTile.value, isTrue);
+    expect(controller.canSubmitStreamValue.value, isTrue);
   });
 }

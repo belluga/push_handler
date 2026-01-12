@@ -38,7 +38,7 @@ class ButtonRouteNavigation {
       case ButtonRouteType.customAction:
         if (closeOnTap) {
           controller.requestClose();
-          Navigator.of(context).maybePop();
+          Navigator.of(context, rootNavigator: true).pop();
         }
         break;
     }
@@ -53,7 +53,7 @@ class ButtonRouteNavigation {
 
     if (closeOnTap) {
       controller.requestClose();
-      Navigator.of(context).maybePop();
+      Navigator.of(context, rootNavigator: true).pop();
     }
 
     await launchUrl(
@@ -92,7 +92,7 @@ class ButtonRouteNavigation {
 
     if (closeOnTap) {
       controller.requestClose();
-      Navigator.of(context).maybePop();
+      Navigator.of(context, rootNavigator: true).pop();
     }
 
     resolver(

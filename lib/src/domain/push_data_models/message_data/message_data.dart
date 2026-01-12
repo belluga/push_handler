@@ -2,7 +2,7 @@ import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/domain/dto/image_data_dto.dart';
 import 'package:push_handler/src/domain/dto/message_data_dto.dart';
 import 'package:push_handler/src/domain/push_data_models/image_data/image_data.dart';
-import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_close_on_last_step_action_value.dart';
+import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_close_behavior_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_background_color_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_body_value.dart';
 import 'package:push_handler/src/domain/push_data_models/message_data/value_objects/message_data_layout_type_value.dart';
@@ -12,7 +12,7 @@ class MessageData {
   final MessageDataTitleValue title;
   final MessageDataBodyValue body;
   final ImageData? image;
-  final MessageDataCloseOnLastStepActionValue closeOnLastStepAction;
+  final MessageDataCloseBehaviorValue closeBehavior;
   final MessageDataLayoutTypeValue layoutType;
   final MessageDataBackgroundColorValue backgroundColor;
   final MessageDataLayoutTypeValue? onClicklayoutType;
@@ -25,7 +25,7 @@ class MessageData {
     required this.body,
     this.image,
     this.chat,
-    required this.closeOnLastStepAction,
+    required this.closeBehavior,
     required this.layoutType,
     required this.backgroundColor,
     required this.onClicklayoutType,
@@ -48,9 +48,9 @@ class MessageData {
       title: MessageDataTitleValue()..parse(dto.title),
       body: MessageDataBodyValue()..parse(dto.body),
       image: _imageData,
-      closeOnLastStepAction:
-          MessageDataCloseOnLastStepActionValue()
-            ..parse(dto.closeOnLastStepAction),
+      closeBehavior:
+          MessageDataCloseBehaviorValue()
+            ..parse(dto.closeBehavior),
       layoutType: MessageDataLayoutTypeValue()..parse(dto.layoutType),
       backgroundColor:
           MessageDataBackgroundColorValue()..tryParse(dto.backgroundColor),

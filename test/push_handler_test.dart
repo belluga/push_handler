@@ -7,7 +7,7 @@ void main() {
     "body":
         "Ei! Que bom ter você aqui! Meu nome é Bela e vou te ajudar com o que precisar.",
     "layoutType": "popup",
-    "closeOnLastStepAction": true,
+    "closeBehavior": "after_action",
     "backgroundColor": "#FFFFFF",
     "onClickLayoutType": "popup",
     "image": {

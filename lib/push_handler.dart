@@ -1,5 +1,6 @@
 export 'src/push_handler.dart';
 export 'src/domain/enums/button_route_type.dart';
+export 'src/domain/enums/message_close_behavior.dart';
 export 'src/domain/enums/message_layout_type.dart';
 export 'src/domain/models/answer_payload.dart';
 export 'src/domain/models/option_item.dart';

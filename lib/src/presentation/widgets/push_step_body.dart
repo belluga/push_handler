@@ -11,6 +11,20 @@ class PushStepBody extends StatelessWidget {
 
   final String body;
   final Color? textColor;
+  static const Set<String> _allowedHtmlTags = {
+    'html',
+    'body',
+    'p',
+    'br',
+    'strong',
+    'em',
+    'u',
+    'span',
+    'ul',
+    'ol',
+    'li',
+    'img',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +38,7 @@ class PushStepBody extends StatelessWidget {
     if (_looksLikeHtml(body)) {
       return Html(
         data: body,
+        onlyRenderTheseTags: _allowedHtmlTags,
         style: {
           'body': Style(
             margin: Margins.zero,
@@ -42,19 +57,34 @@ class PushStepBody extends StatelessWidget {
       );
     }
 
-    return MarkdownBody(
-      data: body,
-      styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-        p: theme.textTheme.bodyMedium?.copyWith(color: resolvedColor),
-        h1: theme.textTheme.headlineSmall?.copyWith(color: resolvedColor),
-        h2: theme.textTheme.titleLarge?.copyWith(color: resolvedColor),
-        h3: theme.textTheme.titleMedium?.copyWith(color: resolvedColor),
-        a: theme.textTheme.bodyMedium?.copyWith(color: resolvedColor),
-      ),
-      sizedImageBuilder: (config) => Image.network(
-        config.uri.toString(),
-        width: config.width,
-        height: config.height,
+    final styleSheet = MarkdownStyleSheet.fromTheme(theme).copyWith(
+      p: theme.textTheme.bodyMedium?.copyWith(color: resolvedColor),
+      h1: theme.textTheme.headlineSmall?.copyWith(color: resolvedColor),
+      h2: theme.textTheme.titleLarge?.copyWith(color: resolvedColor),
+      h3: theme.textTheme.titleMedium?.copyWith(color: resolvedColor),
+      a: theme.textTheme.bodyMedium?.copyWith(color: resolvedColor),
+      textAlign: WrapAlignment.center,
+      h1Align: WrapAlignment.center,
+      h2Align: WrapAlignment.center,
+      h3Align: WrapAlignment.center,
+      h4Align: WrapAlignment.center,
+      h5Align: WrapAlignment.center,
+      h6Align: WrapAlignment.center,
+      unorderedListAlign: WrapAlignment.center,
+      orderedListAlign: WrapAlignment.center,
+    );
+
+    return SizedBox(
+      width: double.infinity,
+      child: MarkdownBody(
+        data: body,
+        fitContent: false,
+        styleSheet: styleSheet,
+        sizedImageBuilder: (config) => Image.network(
+          config.uri.toString(),
+          width: config.width,
+          height: config.height,
+        ),
       ),
     );
   }

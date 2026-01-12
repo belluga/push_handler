@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:push_handler/src/presentation/push_popup/widgets/push_steps_tab.dart';
 import 'package:push_handler/src/presentation/push_widget.dart';
@@ -27,12 +29,22 @@ class _PushPopupState extends PushWidgetState {
     if (!isReady) {
       return const SizedBox.shrink();
     }
-    return WillPopScope(
-      onWillPop: () async {
-        if (controller.currentIndexStreamValue.value > 0) {
-          await controller.toPrevious();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
         }
-        return false;
+        if (controller.consumeCloseRequest()) {
+          unawaited(Navigator.of(context).maybePop());
+          return;
+        }
+        if (controller.consumeBackSuppression()) {
+          return;
+        }
+        if (controller.currentIndexStreamValue.value > 0) {
+          unawaited(controller.toPrevious());
+        }
       },
       child: PushStepsTab(
         controller: controller,

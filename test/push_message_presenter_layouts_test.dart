@@ -14,7 +14,7 @@ void main() {
       'title': 'Push title',
       'body': 'Push body',
       'layoutType': layoutType.name,
-      'closeOnLastStepAction': true,
+      'closeBehavior': 'after_action',
       'backgroundColor': '#FFFFFF',
       'onClickLayoutType': MessageLayoutType.fullScreen.name,
       'steps': List.generate(

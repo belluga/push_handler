@@ -65,9 +65,46 @@ class _PushStepQuestionContentState extends State<PushStepQuestionContent> {
         _options = options;
         _loading = false;
       });
+      _applyPreselection(options);
       return;
     }
-    setState(() => _options = config.options);
+    final options = config.options;
+    setState(() => _options = options);
+    _applyPreselection(options);
+  }
+
+  void _applyPreselection(List<OptionItem> options) {
+    if (_selectedValues.isNotEmpty) {
+      return;
+    }
+    if (widget.stepData.type != 'selector') {
+      return;
+    }
+    final config = widget.stepData.config;
+    if (config == null || config.selectionUi == 'external') {
+      return;
+    }
+    final selected = options
+        .where((option) => option.isSelected)
+        .map((option) => option.value)
+        .toList();
+    if (selected.isEmpty) {
+      return;
+    }
+    final selectionMode = config.selectionMode ?? 'single';
+    final maxSelected = config.maxSelected;
+    setState(() {
+      _selectedValues.clear();
+      if (selectionMode == 'single') {
+        _selectedValues.add(selected.first);
+      } else {
+        final capped = maxSelected != null && maxSelected > 0
+            ? selected.take(maxSelected)
+            : selected;
+        _selectedValues.addAll(capped);
+      }
+    });
+    _syncCanSubmit();
   }
 
   bool _isSelectionValid() {

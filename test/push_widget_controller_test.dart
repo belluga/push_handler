@@ -8,7 +8,7 @@ MessageData _buildMessageData() {
     'title': 'Title',
     'body': 'Body',
     'layoutType': 'fullScreen',
-    'closeOnLastStepAction': true,
+    'closeBehavior': 'after_action',
     'steps': [
       {
         'slug': 'step-one',

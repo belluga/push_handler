@@ -239,7 +239,9 @@ class PushMessagePresenter {
     await showModalBottomSheet(
       context: context,
       isDismissible: false,
-      backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0),
+      backgroundColor: Theme.of(context).colorScheme.surface.withValues(
+            alpha: 0,
+          ),
       builder: (context) => InkWell(
         onTap: () => _showGeneralDialog(
           builder: (context) => PushScreenFull(

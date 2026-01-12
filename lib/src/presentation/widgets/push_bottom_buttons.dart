@@ -27,9 +27,11 @@ class PushBottomButtons extends StatelessWidget {
     final isQuestion =
         step?.type == 'question' || step?.type == 'selector';
     final shouldShowDefaultContinue = !hasStepButtons && !hasGlobalButtons;
-    final showBack = currentIndex > 0;
     final canAdvance = controller.canAdvanceStreamValue.value;
     final canSubmit = controller.canSubmitStreamValue.value;
+    final closeBehavior = controller.messageData.closeBehavior.value;
+    final shouldCloseAfterAction =
+        isLastStep && closeBehavior == MessageCloseBehavior.after_action;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -40,8 +42,7 @@ class PushBottomButtons extends StatelessWidget {
             buttonDataList: stepButtons,
             onButtonPressed: onButtonPressed,
             onCustomAction: onCustomAction,
-            closeOnTap: isLastStep &&
-                controller.messageData.closeOnLastStepAction.value,
+            closeOnTap: shouldCloseAfterAction,
           )
         else if (hasGlobalButtons)
           PushActionButtonsArea(
@@ -49,62 +50,32 @@ class PushBottomButtons extends StatelessWidget {
             buttonDataList: controller.messageData.buttons,
             onButtonPressed: onButtonPressed,
             onCustomAction: onCustomAction,
-            closeOnTap: controller.messageData.closeOnLastStepAction.value,
+            closeOnTap: shouldCloseAfterAction,
           )
         else if (shouldShowDefaultContinue)
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-              onPressed: canAdvance && (!isQuestion || canSubmit)
-                  ? () async {
-                      if (isQuestion && controller.primaryAction != null) {
-                        await controller.primaryAction!.call();
-                        return;
-                      }
-                      if (isLastStep) {
-                        if (controller.messageData.closeOnLastStepAction.value) {
-                          controller.requestClose();
-                          Navigator.of(context).maybePop();
-                        }
-                        return;
-                      }
-                      await controller.toNext();
-                    }
-                  : null,
-              style: PushActionButton.primaryStyle(context),
-              child: const Text('Continuar'),
-            ),
-          ),
-        if (showBack)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.only(bottom: 16),
             child: Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: () async {
-                  await controller.toPrevious();
-                },
-                icon: Icon(
-                  Icons.chevron_left,
-                  size: 20,
-                  color: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.color,
-                ),
-                label: Text(
-                  'voltar',
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-                style: TextButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                  foregroundColor:
-                      Theme.of(context).textTheme.labelMedium?.color,
-                ),
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: canAdvance && (!isQuestion || canSubmit)
+                    ? () async {
+                        if (isQuestion && controller.primaryAction != null) {
+                          await controller.primaryAction!.call();
+                          return;
+                        }
+                        if (isLastStep) {
+                          if (shouldCloseAfterAction) {
+                            controller.requestClose();
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+                          return;
+                        }
+                        await controller.toNext();
+                      }
+                    : null,
+                style: PushActionButton.primaryStyle(context),
+                child: const Text('Continuar'),
               ),
             ),
           ),

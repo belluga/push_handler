@@ -86,11 +86,8 @@ class _PushActionButtonState extends State<PushActionButton> {
     try {
       await _navigate(context);
     } finally {
-      if (!mounted) return;
-      if (shouldShowLoading) {
-        setState(() {
-          _isLoading = false;
-        });
+      if (shouldShowLoading && mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -109,21 +106,27 @@ class _PushActionButtonState extends State<PushActionButton> {
       if (customAction.isEmpty) {
         if (widget.closeOnTap) {
           widget.controller.requestClose();
-          Navigator.of(context).maybePop();
+          Navigator.of(context, rootNavigator: true).pop();
         } else {
           await widget.controller.toNext();
         }
         return;
       }
       await widget.onCustomAction?.call(widget.buttonData, step);
+      if (!context.mounted) {
+        return;
+      }
       if (step.gate != null) {
         await widget.controller.advanceAfterGateAction();
       } else if (widget.buttonData.continueAfterAction.value) {
         await widget.controller.advanceAfterGateAction();
       }
+      if (!context.mounted) {
+        return;
+      }
       if (widget.closeOnTap) {
         widget.controller.requestClose();
-        Navigator.of(context).maybePop();
+        Navigator.of(context, rootNavigator: true).pop();
       }
       return;
     }

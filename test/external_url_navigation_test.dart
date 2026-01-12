@@ -31,7 +31,7 @@ void main() {
       'title': 't',
       'body': 'b',
       'layoutType': 'fullScreen',
-      'closeOnLastStepAction': false,
+      'closeBehavior': 'close_button',
       'steps': [],
       'buttons': [],
     });
