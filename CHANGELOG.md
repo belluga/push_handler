@@ -1,10 +1,13 @@
-## Unreleased
+## 0.2.0
 
 - Add `continue_after_action` to custom buttons to opt into auto-advance after the action.
 - Remove special handling for `noop` custom actions.
 - Add `OptionItem.isSelected` to allow preselected inline options.
 - Clarify that answer persistence lives in app callbacks (no plugin storage).
 - Replace `closeOnLastStepAction` with `closeBehavior` (`after_action`, `close_button`) and add last-step close button support.
+- Use relative API paths in the push transport client to honor configured base URLs.
+- Guard background storage access in the background entrypoint and fall back to queue/no-op on failures.
+- Add `.pubignore` to avoid publishing local env files and generated artifacts.
 
 ## 0.2.0
 

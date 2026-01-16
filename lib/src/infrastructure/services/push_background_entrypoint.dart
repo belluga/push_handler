@@ -10,8 +10,14 @@ Future<void> pushHandlerBackgroundEntryPoint(RemoteMessage message) async {
       message.data['message_instance_id']?.toString() ?? message.messageId;
   if (pushMessageId == null || pushMessageId.isEmpty) return;
 
-  final stored = await PushTransportStorage().load();
-  final enableDebugLogs = stored?.enableDebugLogs ?? true;
+  PushTransportStoredConfig? stored;
+  var enableDebugLogs = true;
+  try {
+    stored = await PushTransportStorage().load();
+    enableDebugLogs = stored?.enableDebugLogs ?? true;
+  } catch (error) {
+    debugPrint('[Push] Background storage unavailable: $error');
+  }
   void log(String value) {
     if (enableDebugLogs) {
       debugPrint(value);
@@ -19,41 +25,52 @@ Future<void> pushHandlerBackgroundEntryPoint(RemoteMessage message) async {
   }
 
   log('[Push] Background entrypoint invoked.');
-  if (stored != null) {
+  final resolvedStored = stored;
+  if (resolvedStored != null) {
     final config = PushTransportConfig(
-      baseUrl: stored.baseUrl,
-      tokenProvider: () async => stored.authToken,
-      deviceIdProvider: () async => stored.deviceId,
+      baseUrl: resolvedStored.baseUrl,
+      tokenProvider: () async => resolvedStored.authToken,
+      deviceIdProvider: () async => resolvedStored.deviceId,
       enableDebugLogs: enableDebugLogs,
     );
     PushTransportRegistry.configure(config);
-      try {
-        final client = PushTransportClient(config);
-  log('[Push] Background delivery attempt for $pushMessageId instance=${messageInstanceId ?? '-'}.');
-        await client.reportAction(
-          pushMessageId: pushMessageId,
-          action: 'delivered',
-          stepIndex: 0,
-          deviceId: stored.deviceId,
-          messageId: messageInstanceId,
-          metadata: {
-            'received_at': receivedAt,
-          },
-        );
-        log('[Push] Background delivery reported for $pushMessageId instance=${messageInstanceId ?? '-'}.');
-        return;
-      } catch (_) {
-        // Fall through to queue on failure.
-        log('[Push] Background delivery failed; enqueueing.');
-      }
+    try {
+      final client = PushTransportClient(config);
+      log(
+        '[Push] Background delivery attempt for $pushMessageId instance=${messageInstanceId ?? '-'}.',
+      );
+      await client.reportAction(
+        pushMessageId: pushMessageId,
+        action: 'delivered',
+        stepIndex: 0,
+        deviceId: resolvedStored.deviceId,
+        messageId: messageInstanceId,
+        metadata: {
+          'received_at': receivedAt,
+        },
+      );
+      log(
+        '[Push] Background delivery reported for $pushMessageId instance=${messageInstanceId ?? '-'}.',
+      );
+      return;
+    } catch (_) {
+      // Fall through to queue on failure.
+      log('[Push] Background delivery failed; enqueueing.');
+    }
   }
 
-  await PushBackgroundDeliveryQueue().enqueue(
-    PushDeliveryQueueItem(
-      pushMessageId: pushMessageId,
-      receivedAtIso: receivedAt,
-      messageInstanceId: messageInstanceId,
-    ),
-  );
-  log('[Push] Background delivery queued for $pushMessageId instance=${messageInstanceId ?? '-'}.');
+  try {
+    await PushBackgroundDeliveryQueue().enqueue(
+      PushDeliveryQueueItem(
+        pushMessageId: pushMessageId,
+        receivedAtIso: receivedAt,
+        messageInstanceId: messageInstanceId,
+      ),
+    );
+    log(
+      '[Push] Background delivery queued for $pushMessageId instance=${messageInstanceId ?? '-'}.',
+    );
+  } catch (error) {
+    log('[Push] Background queue unavailable; skipping.');
+  }
 }

@@ -21,7 +21,7 @@ class PushTransportClient {
     String? tokenOverride,
   }) async {
     await _dio.post(
-      '/push/register',
+      'push/register',
       data: {
         'device_id': deviceId,
         'platform': platform,
@@ -36,7 +36,7 @@ class PushTransportClient {
     String? tokenOverride,
   }) async {
     await _dio.delete(
-      '/push/unregister',
+      'push/unregister',
       data: {
         'device_id': deviceId,
       },
@@ -49,7 +49,7 @@ class PushTransportClient {
     String? tokenOverride,
   }) async {
     final response = await _dio.get(
-      '/push/messages/$pushMessageId/data',
+      'push/messages/$pushMessageId/data',
       options: Options(headers: await _buildAuthHeaders(tokenOverride)),
     );
     final data = response.data;
@@ -101,7 +101,7 @@ class PushTransportClient {
       );
     }
     await _dio.post(
-      '/push/messages/$pushMessageId/actions',
+      'push/messages/$pushMessageId/actions',
       data: body,
       options: Options(headers: await _buildAuthHeaders(tokenOverride)),
     );

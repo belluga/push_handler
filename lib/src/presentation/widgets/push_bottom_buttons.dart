@@ -3,6 +3,7 @@ import 'package:push_handler/push_handler.dart';
 import 'package:push_handler/src/presentation/controller/push_widget_controller.dart';
 import 'package:push_handler/src/presentation/widgets/push_action_buttons_area.dart';
 import 'package:push_handler/src/presentation/widgets/push_action_button.dart';
+
 class PushBottomButtons extends StatelessWidget {
   final PushWidgetController controller;
   final void Function(ButtonData button, int stepIndex)? onButtonPressed;
@@ -17,7 +18,6 @@ class PushBottomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = controller.currentIndexStreamValue.value;
     final isLastStep = controller.isLastStep;
     final step = controller.currentStep;
     final stepButtons = step?.buttons ?? const [];
