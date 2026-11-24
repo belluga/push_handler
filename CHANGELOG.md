@@ -1,3 +1,8 @@
+## 0.3.0
+
+- Update Firebase Core and Firebase Messaging to their compatible 5.x and 17.x releases.
+- Require Flutter 3.44 and Dart 3.12 or newer. Keep the existing FCM token and refresh contract.
+
 ## 0.2.0
 
 - Add `continue_after_action` to custom buttons to opt into auto-advance after the action.
